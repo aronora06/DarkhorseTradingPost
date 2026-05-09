@@ -14,7 +14,7 @@ Year-1 ambition: produce data and findings sufficient for a credible research pu
 
 **Phase 1 — Risk Mitigation Research & Codification: complete (2026-05-09).** Doctrine approved and indexed under [`doctrine/`](doctrine/); Markdown test specs approved under [`tests/specs/`](tests/specs/) (human sign-off recorded in `plans/devPhaseChecklist.md` §1.4). Practitioner dossiers, adversarial catalog, and major-risk paper summaries live under [`RESEARCH/`](RESEARCH/). Populate [`doctrine/satellite_watchlist.md`](doctrine/satellite_watchlist.md) before Satellite goes live (Phase 9 path). Account setups: [`accountSetup.md`](accountSetup.md).
 
-**Phase 3 — Foundations Build: cleared to start.** Per checklist, Phase 3 does not require every optional Phase 2 research stub (`structured_outputs.md`, `prompt_caching.md`, …) — those continue in parallel. First implementation targets: `pyproject.toml` + `src/darkhorse/` scaffold (ADR-0007), then `validate_order` + tests (`plans/devPhaseChecklist.md` Phase 3).
+**Phase 3 — Foundations Build: in progress (2026-05-09).** Python scaffold (ADR-0007), **`validate_order`** + sibling risk modules (**`sizing`**, **`drawdown`**, **`kill_switch`**, **`wind_down`**), **`config`**, **`idempotency`**, **`journal` / `audit` / `calibration`**, **`notify`**, schemas, CI + pre-commit. Next: **`tools/`**, harness, hosting per `plans/devPhaseChecklist.md`.
 
 ## Documents
 
@@ -76,7 +76,20 @@ See `plans/initialPlan.md` §5 for the full list and ordering.
 
 ## Building
 
-**Phase 1 is complete** (doctrine + Markdown specs signed off **2026-05-09**). **Phase 3 — Foundations Build** is next: scaffold `src/darkhorse/` (ADR-0007), implement risk modules from `tests/specs/` — **still no agent / no live LLM in CI** until those milestones say otherwise. See [`plans/devPhaseChecklist.md`](plans/devPhaseChecklist.md) Phase 3.
+**Phase 1 is complete** (doctrine + Markdown specs signed off **2026-05-09**). **Phase 3 — Foundations Build** is underway: Python 3.13, `uv`, Ruff, mypy `--strict`, pytest + Hypothesis (ADR-0007); **no live LLM calls in CI** (ADR-0009). See [`plans/devPhaseChecklist.md`](plans/devPhaseChecklist.md) Phase 3.
+
+**Local dev (from repo root):**
+
+1. Install [uv](https://docs.astral.sh/uv/) (Astral’s installer or `pip install uv`).
+2. `uv sync` — creates `.venv` and installs the project + dev tools from `uv.lock`.
+3. `uv run ruff check .` / `uv run ruff format .` — lint & format.
+4. `uv run mypy --strict src` — typecheck.
+5. `uv run pytest -ra --cov=darkhorse.risk --cov-fail-under=95` — tests (95%+ coverage on `darkhorse.risk` enforced).
+6. Optional: `pre-commit install` — runs Ruff, gitleaks, mypy, pytest on commit (see `.pre-commit-config.yaml`).
+
+`Settings` (`src/darkhorse/config.py`) loads `config/settings.toml` and repo-root `.env` (see `.env.example`). Risk helpers live under `src/darkhorse/risk/`; journals use `src/darkhorse/schemas/` + `journal.py`.
+
+Copy `.env.example` → `.env` for real keys (never commit `.env`).
 
 ## License
 

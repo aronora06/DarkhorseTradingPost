@@ -1,0 +1,18 @@
+# Tunable parameters — committed. Secrets live in `.env` (see `.env.example`).
+# Doctrine-aligned: Core single-name cap 12% (`doctrine/core_sleeve.md`).
+
+core_sleeve_target_usd = 900
+satellite_sleeve_target_usd = 100
+max_position_pct_core = 0.12
+max_position_pct_satellite = 0.50
+satellite_first_tranche_max_pct = 0.25
+buying_power_buffer_usd = 5.0
+daily_loss_kill_pct_core = 0.02
+daily_loss_kill_pct_satellite = 0.10
+drawdown_halt_pct_core = 0.15
+max_trades_per_day_per_sleeve = 3
+pdt_account_equity_threshold_usd = 25000
+pdt_buffered_day_trade_block_at = 2
+monthly_compute_cap_usd = 10.0
+routine_cost_cap_usd = 0.50
+stale_review_days = 14
