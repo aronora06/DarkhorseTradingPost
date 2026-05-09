@@ -37,6 +37,7 @@ Year-1 ambition: produce data and findings sufficient for a credible research pu
 ### Architecture (the "how it's built")
 
 11. **[docs/architecture.md](docs/architecture.md)** — master architecture: component diagrams, data flow, layer responsibilities, extensibility hooks
+12. **[docs/developer-handoff-phase3.md](docs/developer-handoff-phase3.md)** — Phase 3 code status and **next-agent backlog** (update as implementation advances)
 12. **[plans/decisions/](plans/decisions/)** — Architecture Decision Records (ADRs). Twelve foundational ADRs (`0001`–`0012`) cover hosting, harness, tooling, testing, deployment, observability, and configuration. Template at `0000-template.md`.
 13. **[doctrine/](doctrine/)** — Phase 1+ codified trading constitution (risk policy, sleeves, universe, watchlist template, news tiers, style guide); **Phase 1 approved 2026-05-09**
 14. **[tests/specs/](tests/specs/)** — Markdown specifications Phase 3 Python tests implement (`validate_order`, halts, sizing, idempotency, adversarial hooks); **Phase 1 approved 2026-05-09**

@@ -161,7 +161,7 @@ The **safety wall.** Every order, every halt check, every sizing computation pas
 |---|---|
 | `validate_order.py` | Final pre-broker check. Asserts position cap, sleeve cap, daily-loss kill state, drawdown halt state, kill-switch state, ticker whitelist, PDT safety, idempotency. |
 | `sizing.py` | Per-sleeve sizing math. Translates "% of sleeve NAV" into integer share quantities given a price. |
-| `kill_switch.py` | Three-source check: `KILLSWITCH` file at repo root, `DARKHORSE_KILLSWITCH` env var, optional remote `/killswitch` endpoint. ANY positive → halt. |
+| `kill_switch.py` | `KILLSWITCH` file at repo root, `DARKHORSE_KILL=1` env (harness passes `getenv`), optional HTTP remote URL whose body can assert kill. Fail-closed on remote errors. |
 | `drawdown.py` | High-water mark tracking. Fires daily-loss kill, drawdown halt, uncle point. **HWM does not reset after halt.** |
 | `wind_down.py` | Implements `riskMitigation.md` §6 wind-down rule. If 6-month rolling Sharpe vs SPY < 0, Core converts to SPY. Self-firing from day 1 of live. |
 
@@ -187,7 +187,7 @@ The agent's hands. Tools are typed Python functions registered with the Anthropi
 | `data.py` | Market data: Finnhub (paid tier free), yfinance fallback. Returns timestamps for staleness detection. |
 | `news.py` | Sonar Finance Search + Tavily fallback. Unicode-NFKC normalize all returned text before it enters the prompt. Validate cited tickers against the asset list. |
 | `snaptrade.py` | Read-only Fidelity holdings via SnapTrade. For sizing context only — agent cannot trade Fidelity. |
-| `journal.py` | Internally-used tool the agent does not call directly; the harness writes through this. |
+| _(n/a — use package root)_ | Journal persistence lives in `src/darkhorse/journal.py` (not under `tools/`); the harness calls it after validation. |
 
 Caching at the tool layer: each tool result is memoized within a single routine invocation (never across routines). News and quotes are fetched once; intra-routine the same call returns the cached result.
 

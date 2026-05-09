@@ -16,6 +16,7 @@ If you're trying to understand "what we decided and why," start in `plans/`. If 
 | File | Purpose |
 |---|---|
 | [`architecture.md`](architecture.md) | The master architectural reference for the codebase: layers, data flow, deployment topology, extensibility hooks, ADR index |
+| [`developer-handoff-phase3.md`](developer-handoff-phase3.md) | Phase 3 implementation status, code/doc review notes, and prioritized next steps for the next agent (living; update as phases advance) |
 
 **Related (outside `docs/`):** [`doctrine/`](../doctrine/) — trading constitution Markdown (**Phase 1 approved 2026-05-09**); [`tests/specs/`](../tests/specs/) — Markdown specs implemented by Phase 3 tests (**same sign-off**).
 
