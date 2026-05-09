@@ -28,7 +28,7 @@ The annual report should be writable into a paper draft with minimal restructuri
 - Explicit non-claims (we did not invent a strategy, we did not run a fund, we did not fine-tune anything).
 
 ## 2. System design
-Synthesized from `plans/initialPlan.md`, `plans/architecture.md`, `plans/learningSystem.md`. ~3–5 pages.
+Synthesized from `plans/initialPlan.md`, `docs/architecture.md`, `plans/learningSystem.md`. ~3–5 pages.
 
 ## 3. Research questions and hypotheses
 Synthesized from `plans/researchCharter.md` and `RESEARCH/hypotheses/`. Status of each hypothesis at year-end with cited evidence.

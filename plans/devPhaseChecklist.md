@@ -87,26 +87,39 @@ What we do instead:
 
 ### 2.1 Research
 
-- [ ] Read TradingAgents repo + paper, document debate-flow design choices in `RESEARCH/architecture/multi_agent_debate.md`
-- [ ] Read Anthropic structured outputs beta docs, prototype a tiny example, file under `RESEARCH/architecture/structured_outputs.md`
-- [ ] Read Anthropic prompt caching docs, calculate expected cache hit rates, file under `RESEARCH/architecture/prompt_caching.md`
-- [ ] Read Alpaca official MCP server docs, decide direct-use vs wrap, file in `plans/decisions/0001-alpaca-mcp-vs-wrapper.md`
+- [x] (2026-05-09) High-level review of agentic-LLM frameworks (LangGraph, OpenAI Agents SDK, CrewAI, AutoGen, Pydantic AI, Mastra) and rationale for custom thin harness — `RESEARCH/architecture/agentic_harness_patterns.md`
+- [x] (2026-05-09) Python project tooling validation (uv, Ruff, mypy, pytest) — `RESEARCH/architecture/python_project_tooling_2026.md`
+- [x] (2026-05-09) Hosting comparison (Linode vs Hetzner Ashburn vs PaaS) — `RESEARCH/architecture/hosting_comparison.md`
+- [x] (2026-05-09) Testing strategies for LLM-driven systems (assertllm, agentpytest, cassette pattern) — `RESEARCH/architecture/testing_ai_agents.md`
+- [x] (2026-05-09) Anthropic SDK features (1h prompt cache, structured outputs, strict tool use, tool loop) — `RESEARCH/architecture/anthropic_sdk_features.md`
+- [x] (2026-05-09) Frontend dashboard stack (FastAPI + HTMX + Alpine + Tailwind + DaisyUI) — `RESEARCH/architecture/frontend_dashboard_stack.md`
+- [ ] Deeper read: TradingAgents repo + paper, debate-flow design choices — `RESEARCH/architecture/multi_agent_debate.md`
+- [ ] Deeper read: Anthropic structured outputs (with a tiny prototype) — `RESEARCH/architecture/structured_outputs.md`
+- [ ] Deeper read: Anthropic prompt caching, calculate expected cache hit rates — `RESEARCH/architecture/prompt_caching.md`
+- [ ] Read Alpaca official MCP server docs (validates ADR-0001 deferral) — feeds re-check
 - [ ] Read Claude Code routines docs (for backup-scheduler use)
-- [ ] Read at least 3 production agent post-mortems, document common failure modes in `RESEARCH/architecture/agent_failure_modes.md`
+- [ ] Read at least 3 production agent post-mortems, document common failure modes — `RESEARCH/architecture/agent_failure_modes.md`
 
 ### 2.2 Architecture artifacts
 
-- [ ] `plans/architecture.md` populated — component diagram, data flow, sequence diagrams for each routine, tool contracts
-- [ ] `plans/dataSchema.md` finalized
-- [ ] Tool contract definitions: Python type stubs in `src/tools/_contracts.py` for every tool
-- [ ] Prompt skeletons: empty-but-structured `prompts/system_core.md`, `system_satellite.md`, `researcher.md`, `bull_analyst.md`, `bear_analyst.md`, `risk_manager.md`, `reflection.md`, `monthly_competitive_review.md`
-- [ ] `plans/decisions/0002-tiered-model-strategy.md`
-- [ ] `plans/decisions/0003-memory-architecture.md`
-- [ ] `plans/decisions/0004-frontend-stack.md`
-- [ ] `plans/decisions/0005-hosting.md`
-- [ ] `plans/decisions/0006-scheduler-systemd-vs-claude-code-routines.md`
+- [x] (2026-05-09) `docs/architecture.md` populated — component diagram, data flow, sequence diagrams for each routine, tool contracts (moved from `plans/architecture.md` to `docs/architecture.md` to separate active code reference from steering plans)
+- [x] (2026-05-08) `plans/dataSchema.md` finalized
+- [ ] Tool contract definitions: Python type stubs in `src/darkhorse/tools/_contracts.py` for every tool (Phase 3 deliverable)
+- [ ] Prompt skeletons: empty-but-structured `prompts/system_core.md`, `system_satellite.md`, `researcher.md`, `bull_analyst.md`, `bear_analyst.md`, `risk_manager.md`, `reflection.md`, `monthly_competitive_review.md` (Phase 3 deliverable)
+- [x] (2026-05-09) `plans/decisions/0001-tool-integration-anthropic-sdk-vs-mcp.md` (replaces planned `0001-alpaca-mcp-vs-wrapper.md`)
+- [x] (2026-05-09) `plans/decisions/0002-tiered-model-strategy.md`
+- [x] (2026-05-09) `plans/decisions/0003-memory-architecture.md`
+- [x] (2026-05-09) `plans/decisions/0004-frontend-stack.md`
+- [x] (2026-05-09) `plans/decisions/0005-hosting.md`
+- [x] (2026-05-09) `plans/decisions/0006-scheduler.md` (was planned as `0006-scheduler-systemd-vs-claude-code-routines.md`)
+- [x] (2026-05-09) `plans/decisions/0007-python-project-layout.md`
+- [x] (2026-05-09) `plans/decisions/0008-agentic-harness-pattern.md`
+- [x] (2026-05-09) `plans/decisions/0009-testing-strategy.md`
+- [x] (2026-05-09) `plans/decisions/0010-deployment-pipeline.md`
+- [x] (2026-05-09) `plans/decisions/0011-observability.md`
+- [x] (2026-05-09) `plans/decisions/0012-configuration-and-secrets.md`
 
-**Exit criteria:** Architecture docs reviewed by Aaron, ADRs filed, prompt skeletons exist, tool contracts are typed.
+**Exit criteria:** Architecture docs reviewed by Aaron, ADRs filed (✓), prompt skeletons exist (Phase 3), tool contracts are typed (Phase 3). Phase 2 research complete enough to begin Phase 3 build; deeper paper-reads continue in parallel and feed back into ADR re-checks.
 
 ---
 
@@ -116,41 +129,43 @@ What we do instead:
 
 ### 3.1 Repo scaffolding
 
-- [ ] Python project initialized: `pyproject.toml`, `uv`, `ruff`, `pytest`, `mypy --strict`
-- [ ] Directory structure per `initialPlan.md` §3.1 created
-- [ ] Pre-commit hooks: ruff, mypy, pytest on changed files
-- [ ] CI: GitHub Actions running tests on every PR
-- [ ] `.env.example` committed with every variable documented
+- [ ] Python project initialized per ADR-0007: `pyproject.toml` (single config source), `uv` env management, `ruff`, `pytest`, `mypy --strict`, Hypothesis, pydantic v2, pydantic-settings, structlog, httpx, tenacity
+- [ ] `src/darkhorse/` package layout per ADR-0007 §"Repository layout"
+- [ ] Pre-commit hooks: ruff, mypy, pytest-on-changed-files, gitleaks (no-secrets check)
+- [ ] CI: GitHub Actions per ADR-0010 — ruff, mypy, pytest, coverage report on every PR
+- [ ] `.env.example` committed with every variable documented per ADR-0012
 
 ### 3.2 Risk modules
 
-- [ ] `src/risk/sizing.py` with full unit tests
-- [ ] `src/risk/drawdown.py` — HWM tracking, halt firing, uncle-point firing — tests cover the recovery-without-HWM-reset rule
-- [ ] `src/risk/kill_switch.py` — checks `KILLSWITCH` file, env var, optional remote endpoint
-- [ ] `src/risk/validate_order.py` — every rule from the spec; bypass attempts fail loudly
-- [ ] `src/risk/wind_down.py` — implements the `riskMitigation.md` §6 wind-down rule (so it can fire from day 1 of live)
-- [ ] Property-based tests using Hypothesis on validate_order rules
+- [ ] `src/darkhorse/risk/sizing.py` with full unit tests
+- [ ] `src/darkhorse/risk/drawdown.py` — HWM tracking, halt firing, uncle-point firing — tests cover the recovery-without-HWM-reset rule
+- [ ] `src/darkhorse/risk/kill_switch.py` — checks `KILLSWITCH` file, env var, optional remote endpoint
+- [ ] `src/darkhorse/risk/validate_order.py` — every rule from the spec; bypass attempts fail loudly
+- [ ] `src/darkhorse/risk/wind_down.py` — implements the `riskMitigation.md` §6 wind-down rule (so it can fire from day 1 of live)
+- [ ] Property-based tests using Hypothesis on validate_order rules (per ADR-0009)
 
 ### 3.3 Core utilities
 
-- [ ] `src/journal.py` — append-only JSONL writer, schema-validated, daily file rotation
-- [ ] `src/calibration.py` — confidence vs realized P&L tracker
-- [ ] `src/idempotency.py` — deterministic `client_order_id` derivation
-- [ ] `src/notify.py` — Discord webhook wrapper with retry + dead-letter
-- [ ] `src/config.py` — settings loader from `config/settings.toml` + `.env`
-- [ ] `src/audit.py` — append-only audit log writer
+- [ ] `src/darkhorse/journal.py` — append-only JSONL writer, schema-validated, daily file rotation
+- [ ] `src/darkhorse/calibration.py` — confidence vs realized P&L tracker
+- [ ] `src/darkhorse/idempotency.py` — deterministic `client_order_id` derivation
+- [ ] `src/darkhorse/notify.py` — Discord webhook wrapper with retry + dead-letter (per ADR-0011)
+- [ ] `src/darkhorse/config.py` — pydantic-settings loader (per ADR-0012)
+- [ ] `src/darkhorse/audit.py` — append-only audit log writer
+- [ ] `src/darkhorse/schemas/` — pydantic models for every JSONL/MD shape (per `dataSchema.md`)
 
 ### 3.4 Tools (deterministic only — no LLM)
 
-- [ ] `src/tools/alpaca.py` — connect to live + paper, fetch account, fetch positions, place order, cancel order. Every order routes through `validate_order()`. Tests use Alpaca's paper sandbox.
-- [ ] `src/tools/data.py` — Finnhub quotes + bars, yfinance fallback. Cache results within a routine.
-- [ ] `src/tools/news.py` — Sonar Finance Search wrapper, Tavily fallback. Unicode-NFKC normalize all returned text. Validate ticker mentions against the asset list.
-- [ ] `src/tools/snaptrade.py` — read-only Fidelity holdings (deferred until SnapTrade-Fidelity link is approved)
+- [ ] `src/darkhorse/tools/_contracts.py` — pydantic input/output models for every tool, `strict: true`-ready
+- [ ] `src/darkhorse/tools/alpaca.py` — connect to live + paper, fetch account, fetch positions, place order, cancel order. Every order routes through `validate_order()`. Tests use Alpaca's paper sandbox.
+- [ ] `src/darkhorse/tools/data.py` — Finnhub quotes + bars, yfinance fallback. Cache results within a routine.
+- [ ] `src/darkhorse/tools/news.py` — Sonar Finance Search wrapper, Tavily fallback. Unicode-NFKC normalize all returned text. Validate ticker mentions against the asset list.
+- [ ] `src/darkhorse/tools/snaptrade.py` — read-only Fidelity holdings (deferred until SnapTrade-Fidelity link is approved)
 - [ ] Asset-list refresher: weekly job pulls Alpaca's `assets` endpoint, writes `data/assets/YYYY-MM-DD.json`
 
 ### 3.5 Hosting & infrastructure
 
-- [ ] Linode Nanode 1GB provisioned (or chosen alternative), Ubuntu 24.04 LTS
+- [ ] Hetzner Cloud CX22 in Ashburn US provisioned (per ADR-0005), Ubuntu 24.04 LTS
 - [ ] Tailscale installed; SSH disabled on public interfaces
 - [ ] systemd skeleton for the scheduler, the FastAPI app, the watchdogs
 - [ ] nginx/Caddy reverse proxy configured

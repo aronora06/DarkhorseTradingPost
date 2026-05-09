@@ -121,7 +121,9 @@ If/when SQLite stops cutting it (multi-GB journal, complex analytic queries), up
 
 ### Provider
 
-**Linode (Akamai) Nanode 1GB — $5/month** in a US region (Newark or Dallas, depending on Alpaca's data center latency — verify in Phase 7).
+> **Hosting decision now codified in [ADR-0005](decisions/0005-hosting.md): Hetzner Cloud CX22 in Ashburn US (~$4.20/mo, 2 vCPU / 4 GB RAM / 40 GB NVMe / 20 TB bandwidth) — supersedes the Linode recommendation below.** The Linode analysis is preserved here for context and as the documented fallback. See `RESEARCH/architecture/hosting_comparison.md` for the full comparison.
+
+**Original recommendation: Linode (Akamai) Nanode 1GB — $5/month** in a US region (Newark or Dallas, depending on Alpaca's data center latency — verify in Phase 7).
 
 Specs: 1 vCPU, 1GB RAM, 25GB SSD, 1TB egress. Sufficient for the agent + FastAPI + SQLite + nginx. RAM is the binding constraint; if multi-agent debate consumes more than expected, upgrade to 2GB ($12/mo).
 
@@ -179,16 +181,19 @@ Two paths considered:
 
 ## Cost Estimate
 
+(Updated post ADR-0005 to use the Hetzner Ashburn pricing. Linode pricing preserved below for fallback reference.)
+
 | Item | Monthly |
 |---|---|
-| Linode Nanode 1GB | $5 |
+| Hetzner Cloud CX22 Ashburn (per ADR-0005) | ~$4.20 |
+| _Fallback: Linode Nanode 1GB_ | _$5_ |
 | Backblaze B2 backups | <$0.10 |
 | Tailscale (free tier) | $0 |
 | Cloudflare Tunnel + Access (free tier) | $0 |
 | Domain name (optional, for tailnet hostname) | ~$1/mo amortized |
-| **Total infra** | **~$6/month** |
+| **Total infra (Hetzner)** | **~$5.30/month** |
 
-Plus the API costs in `riskMitigation.md` §2 (~$3/mo target). **Total operational cost: ~$9/month**, or ~1% of NAV/yr at $1k starting capital.
+Plus the API costs in `riskMitigation.md` §2 (~$3/mo target). **Total operational cost: ~$8.30/month**, or ~0.83% of NAV/yr at $1k starting capital.
 
 ## Deployment Flow
 

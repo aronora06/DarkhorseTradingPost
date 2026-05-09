@@ -8,26 +8,45 @@ Year-1 ambition: produce data and findings sufficient for a credible research pu
 
 ## Status
 
-**Phase 0 — Steering documentation: complete (2026-05-08).** All steering docs in `plans/` have been reviewed and signed off. Design decisions called out in `plans/suggestedNextSteps.md` §1 have been accepted. The ADR template is in place at `plans/decisions/0000-template.md` and the `RESEARCH/` directory structure is staged for Phase 1 deliverables. Repo is private on GitHub; Aaron pushes directly to `main`. Agent-proposed doctrine changes still flow through draft PRs as the discipline mechanism (see `plans/learningSystem.md`).
+**Phase 0 — Steering documentation: complete (2026-05-08).** All steering docs in `plans/` reviewed and signed off. Repo is private on GitHub; Aaron pushes directly to `main`. Agent-proposed doctrine changes still flow through draft PRs as the discipline mechanism.
 
-**Currently entering Phase 1 — Risk Mitigation Research & Codification.** No costs accruing yet. See `plans/devPhaseChecklist.md` Phase 1 for deliverables; see `plans/suggestedNextSteps.md` §2–3 for the recommended week-by-week sequence.
+**Phase 2 — Architecture Research & Codification: substantially complete (2026-05-09).** The master architecture is documented at `docs/architecture.md`. Twelve foundational ADRs are filed under `plans/decisions/` covering hosting, harness pattern, Python tooling, testing strategy, deployment, observability, and configuration. Six architecture research notes live under `RESEARCH/architecture/`. Phase 2's remaining deeper-paper-reads (TradingAgents, agent failure modes) continue in parallel and will inform ADR re-checks at the 6-month mark.
+
+**Phase 1 — Risk Mitigation Research & Codification: in progress.** No costs accruing yet. Account setups (Alpaca, Anthropic, Perplexity, SnapTrade, Discord) are running in parallel given their lead times. See `plans/devPhaseChecklist.md` for the executable list and `plans/suggestedNextSteps.md` §2–3 for the recommended week-by-week sequence.
+
+**Phase 3 — Foundations Build: ready to start once Phase 1 doctrine is codified.** All architecture decisions are in place to begin scaffolding `src/darkhorse/`.
 
 ## Documents
 
-Read in this order:
+### Steering (the "what" and "why")
 
-1. **[plans/initialPlan.md](plans/initialPlan.md)** — what we're building, the architecture, the decisions
+1. **[plans/initialPlan.md](plans/initialPlan.md)** — what we're building, the high-level decisions
 2. **[plans/riskMitigation.md](plans/riskMitigation.md)** — what could go wrong and how we limit damage; tiered model strategy and cost controls
 3. **[plans/researchCharter.md](plans/researchCharter.md)** — the research framing: hypotheses, success/failure criteria, outputs
 4. **[plans/learningSystem.md](plans/learningSystem.md)** — meta-learning architecture (the system gets smarter over time, deliberately)
-5. **[plans/devPhaseChecklist.md](plans/devPhaseChecklist.md)** — the executable to-do list across all phases
-6. **[plans/frontendAndHosting.md](plans/frontendAndHosting.md)** — dashboard spec + Linode infrastructure
-7. **[plans/dataSchema.md](plans/dataSchema.md)** — telemetry/journaling formats that enable the learning system
-8. **[plans/glossary.md](plans/glossary.md)** — vocabulary
+5. **[plans/frontendAndHosting.md](plans/frontendAndHosting.md)** — dashboard requirements (canonical hosting choice now lives in ADR-0005)
+6. **[plans/dataSchema.md](plans/dataSchema.md)** — telemetry/journaling formats that enable the learning system
+7. **[plans/glossary.md](plans/glossary.md)** — vocabulary
+
+### Operational (the executable list and sequencing)
+
+8. **[plans/devPhaseChecklist.md](plans/devPhaseChecklist.md)** — the executable to-do list across all phases
 9. **[plans/suggestedNextSteps.md](plans/suggestedNextSteps.md)** — sequencing recommendations and the §1 design-decision sign-offs
-10. **[plans/architecture.md](plans/architecture.md)** — component diagrams, data flow, sequence diagrams (populated in Phase 2)
-11. **[plans/decisions/](plans/decisions/)** — Architecture Decision Records (ADRs) accumulated over time; template at `0000-template.md`
-12. **[RESEARCH/](RESEARCH/)** — the research record: papers read, hypotheses, dossiers, retrospectives, competitive landscape
+
+### Architecture (the "how it's built")
+
+10. **[docs/architecture.md](docs/architecture.md)** — master architecture: component diagrams, data flow, layer responsibilities, extensibility hooks
+11. **[plans/decisions/](plans/decisions/)** — Architecture Decision Records (ADRs). Twelve foundational ADRs (`0001`–`0012`) cover hosting, harness, tooling, testing, deployment, observability, and configuration. Template at `0000-template.md`.
+12. **[RESEARCH/architecture/](RESEARCH/architecture/)** — research notes that informed the ADRs (frameworks, tooling, hosting comparison, testing strategies, Anthropic SDK features, frontend stack)
+13. **[docs/](docs/)** — active reference documentation for the running system (architecture, runbooks, troubleshooting). Currently has `architecture.md`; runbook/setup/troubleshooting docs added as code is built in Phase 3+.
+
+### Research record
+
+13. **[RESEARCH/](RESEARCH/)** — papers read, hypotheses, dossiers, retrospectives, competitive landscape, annual reports
+
+### Reading order for new contributors
+
+`initialPlan.md` → `architecture.md` → relevant ADRs → relevant `RESEARCH/architecture/` notes → code. If those give you a coherent mental model in <2 hours, the docs are healthy.
 
 ## Core Principles (the Constitution)
 
