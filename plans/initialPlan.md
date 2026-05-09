@@ -159,7 +159,7 @@ Tiered model assignment per role: see `riskMitigation.md` §2. **Risk-manager ru
 4. **Tavily** — free tier (1,000 credits/mo) is enough for fallback research.
 5. **Finnhub** — free tier covers basic quotes/fundamentals. Upgrade later if needed.
 6. **Discord** — create a private server with one channel and a webhook. Two minutes.
-7. **GitHub** — repo created. Set up branch protection on `main` so doctrine changes go through PR.
+7. **GitHub** — repo created, private. No branch protection; Aaron pushes directly to `main` when convenient. Agent-proposed doctrine changes still flow through draft PRs (see §7.5 and `learningSystem.md`) — that is the doctrine-drift mitigation, not branch protection.
 8. **SnapTrade** — register, connect your Fidelity account read-only (Fidelity-side approval may take 1–2 days; start early).
 
 **Funded (only when ready to go live — flagged for later):**

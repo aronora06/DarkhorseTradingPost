@@ -26,20 +26,20 @@ What we do instead:
 
 **Goal:** Lock the steering documents in place before any other work. **No costs accruing.**
 
-- [ ] `plans/initialPlan.md` written and reviewed by Aaron
-- [ ] `plans/riskMitigation.md` written and reviewed by Aaron
-- [ ] `plans/devPhaseChecklist.md` (this file) written and reviewed by Aaron
-- [ ] `plans/researchCharter.md` written and reviewed by Aaron
-- [ ] `plans/learningSystem.md` written and reviewed by Aaron
-- [ ] `plans/frontendAndHosting.md` written and reviewed by Aaron
-- [ ] `plans/dataSchema.md` written and reviewed by Aaron
-- [ ] `plans/glossary.md` written and reviewed by Aaron
-- [ ] `plans/suggestedNextSteps.md` written and reviewed by Aaron
-- [ ] `README.md` at project root, indexing all the above
-- [ ] `plans/decisions/0000-template.md` ADR template committed
-- [ ] `RESEARCH/` directory structure created (papers/, hypotheses/, monthly/, quarterly/, annual/, competitive_landscape/, practitioner_dossiers/)
-- [ ] `git init`, push to private GitHub repo, branch protection on `main` enabled
-- [ ] `.gitignore` covers `.env`, `secrets/`, `__pycache__`, etc.
+- [x] (2026-05-08) `plans/initialPlan.md` written and reviewed by Aaron
+- [x] (2026-05-08) `plans/riskMitigation.md` written and reviewed by Aaron
+- [x] (2026-05-08) `plans/devPhaseChecklist.md` (this file) written and reviewed by Aaron
+- [x] (2026-05-08) `plans/researchCharter.md` written and reviewed by Aaron
+- [x] (2026-05-08) `plans/learningSystem.md` written and reviewed by Aaron
+- [x] (2026-05-08) `plans/frontendAndHosting.md` written and reviewed by Aaron
+- [x] (2026-05-08) `plans/dataSchema.md` written and reviewed by Aaron
+- [x] (2026-05-08) `plans/glossary.md` written and reviewed by Aaron
+- [x] (2026-05-08) `plans/suggestedNextSteps.md` written and reviewed by Aaron
+- [x] (2026-05-08) `README.md` at project root, indexing all the above
+- [x] (2026-05-08) `plans/decisions/0000-template.md` ADR template committed
+- [x] (2026-05-08) `RESEARCH/` directory structure created (papers/, hypotheses/, monthly/, quarterly/, annual/, competitive_landscape/, practitioner_dossiers/)
+- [x] (2026-05-08) `git init`, push to private GitHub repo (private; direct pushes to `main` permitted — agent-proposed doctrine changes still flow through draft PRs per `learningSystem.md`)
+- [x] (2026-05-08) `.gitignore` covers `.env`, `secrets/`, `__pycache__`, etc.
 
 **Exit criteria:** All steering docs exist on `main`, reviewed by Aaron, with no open questions blocking Phase 1.
 

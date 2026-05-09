@@ -6,7 +6,7 @@ Vocabulary used in doctrine, prompts, code, and discussion. The point of this fi
 
 **Sleeve** — a logical sub-portfolio with its own mandate, doctrine, journal, and risk limits. Darkhorse has two: Core ($900, conservative) and Satellite ($100, risk capital). Sleeves never cross-fund.
 
-**Doctrine** — the slow-changing rules that govern the agent's behavior. Files under `doctrine/`. Read into every routine. Edited only via PR Aaron merges.
+**Doctrine** — the slow-changing rules that govern the agent's behavior. Files under `doctrine/`. Read into every routine. Agent-proposed edits arrive as draft PRs Aaron merges or rejects; Aaron's own edits may go directly to `main`, with material changes typically still PR'd for the rationale record.
 
 **Routine** — a single scheduled invocation of the agent. Darkhorse has five: pre_market, market_open, midday_scan, end_of_day, weekly_review. Each is stateless; reads its world from disk.
 

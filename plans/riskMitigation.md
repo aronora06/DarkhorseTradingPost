@@ -186,7 +186,7 @@ Set a hard monthly spend cap (Anthropic Console) at $10/month. If we're over, so
 **The problem:** Weekly reviews can quietly liberalize rules. "We should allow 7% positions instead of 5%, the data supports it." Six months later, position sizes are 12% and the discipline is gone.
 
 **Mitigation:**
-- Doctrine edits via **GitHub PR only**. The agent can *propose* edits in a draft PR; Aaron must merge.
+- **Agent-proposed** doctrine edits go via **GitHub draft PR**, which Aaron reviews and either merges, edits-and-merges, or closes-with-reasoning. Aaron's own doctrine edits may go directly to `main` — branch protection is not enforced — but the discipline expectation is that *material* doctrine changes still flow through a PR for the public-record value (the PR description becomes the rationale citation).
 - PR template requires answering: "what would have to be true for this change to be wrong?"
 - Quarterly: full doctrine diff against the original Phase 0 version, with a `git log doctrine/` review.
 - Doctrine version pinned in every journal entry — if an old setup is referenced, we know which doctrine version evaluated it.

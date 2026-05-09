@@ -14,29 +14,31 @@ After the initial steering pass, two changes were locked in:
 
 These are design calls I made unilaterally that you should consciously sign off on (or push back on) before they ossify into code.
 
+**Status: signed off (2026-05-08).** All validation items below were reviewed and accepted as-written. Any future changes to these decisions go through ADRs and PR review like any other doctrine change — they are no longer unilateral.
+
 ### 1.1 In `learningSystem.md`
 
-- [ ] **Doctrine promotion path is slow on purpose.** Lessons need 3 re-validations (~18 months) before being promoted to doctrine. This is deliberately conservative — rules that earn permanence should earn it. If you'd rather have a faster path (e.g., 2 re-validations), say so now; this number is hard to change after lessons start accumulating with a specific lifecycle baked in.
-- [ ] **Reasoning audits are for you, not the agent.** I decided not to feed the quarterly reasoning-pattern snapshots back into the agent's prompt because compounding feedback ("the agent reads its own reasoning style and over-corrects") has bad equilibria. The cost is that the agent doesn't directly see how its style drifts. Confirm you're comfortable with this asymmetry.
-- [ ] **Sunset default of 6 months.** Every lesson expires in 6 months absent re-validation. Long enough to gather evidence, short enough to force re-examination. If you want a different default, change it before any lessons exist.
+- [x] (2026-05-08) **Doctrine promotion path is slow on purpose.** Lessons need 3 re-validations (~18 months) before being promoted to doctrine. This is deliberately conservative — rules that earn permanence should earn it. If you'd rather have a faster path (e.g., 2 re-validations), say so now; this number is hard to change after lessons start accumulating with a specific lifecycle baked in.
+- [x] (2026-05-08) **Reasoning audits are for you, not the agent.** I decided not to feed the quarterly reasoning-pattern snapshots back into the agent's prompt because compounding feedback ("the agent reads its own reasoning style and over-corrects") has bad equilibria. The cost is that the agent doesn't directly see how its style drifts. Confirm you're comfortable with this asymmetry.
+- [x] (2026-05-08) **Sunset default of 6 months.** Every lesson expires in 6 months absent re-validation. Long enough to gather evidence, short enough to force re-examination. If you want a different default, change it before any lessons exist.
 
 ### 1.2 In `frontendAndHosting.md`
 
-- [ ] **systemd timers on the VPS as primary scheduler, Claude Code routines as backup.** This trades the ergonomics of Claude Code's cloud cron for full visibility/logs/model-flexibility. Reverse if you'd rather start with Claude Code routines and only move to systemd if their reliability disappoints.
-- [ ] **HTMX + Alpine + Tailwind, not Next.js.** Right call for a single-user dashboard but constrains future interactive viz. If you imagine wanting heavy interactivity (custom chart drag-to-zoom, multi-pane layouts, etc.), Next.js is worth the build pipeline cost upfront.
-- [ ] **Tailscale-only access at launch.** Most secure default but requires the Tailscale app on every device. Cloudflare Access (free tier) is a one-step add-on if you want browser-anywhere later.
-- [ ] **SQLite for v1, Postgres later.** Fine at this scale; the journal-as-source-of-truth design means SQLite is just a fast query mirror. Confirm you don't want Postgres from day one to avoid a future migration.
+- [x] (2026-05-08) **systemd timers on the VPS as primary scheduler, Claude Code routines as backup.** This trades the ergonomics of Claude Code's cloud cron for full visibility/logs/model-flexibility. Reverse if you'd rather start with Claude Code routines and only move to systemd if their reliability disappoints.
+- [x] (2026-05-08) **HTMX + Alpine + Tailwind, not Next.js.** Right call for a single-user dashboard but constrains future interactive viz. If you imagine wanting heavy interactivity (custom chart drag-to-zoom, multi-pane layouts, etc.), Next.js is worth the build pipeline cost upfront.
+- [x] (2026-05-08) **Tailscale-only access at launch.** Most secure default but requires the Tailscale app on every device. Cloudflare Access (free tier) is a one-step add-on if you want browser-anywhere later.
+- [x] (2026-05-08) **SQLite for v1, Postgres later.** Fine at this scale; the journal-as-source-of-truth design means SQLite is just a fast query mirror. Confirm you don't want Postgres from day one to avoid a future migration.
 
 ### 1.3 In `riskMitigation.md`
 
-- [ ] **Hard-pass on China-hosted models** (DeepSeek/Kimi/Qwen). Saves a few dollars/month, costs you data residency. Already discussed; just want this consciously locked.
-- [ ] **Hard-pass on self-hosting.** Doesn't pencil at $1k AUM. If you happen to acquire 36GB+ Apple Silicon for unrelated reasons, revisit.
-- [ ] **Wind-down rule** (`riskMitigation.md` §6) is not negotiable in the moment. If 6-month rolling Sharpe vs SPY < 0, Core converts to SPY automatically. The discipline only works if it's pre-committed. Confirm.
+- [x] (2026-05-08) **Hard-pass on China-hosted models** (DeepSeek/Kimi/Qwen). Saves a few dollars/month, costs you data residency. Already discussed; just want this consciously locked.
+- [x] (2026-05-08) **Hard-pass on self-hosting.** Doesn't pencil at $1k AUM. If you happen to acquire 36GB+ Apple Silicon for unrelated reasons, revisit.
+- [x] (2026-05-08) **Wind-down rule** (`riskMitigation.md` §6) is not negotiable in the moment. If 6-month rolling Sharpe vs SPY < 0, Core converts to SPY automatically. The discipline only works if it's pre-committed. Confirm.
 
 ### 1.4 In `initialPlan.md`
 
-- [ ] **No options/futures/crypto in v1.** Deferred until each gets a written policy. This is conservative; if you have a strong prior that, say, covered calls in Satellite are obviously safe, lock it in now rather than later (later means after the agent already has habits).
-- [ ] **Earnings policy** (the open question in §9). Core excludes names with earnings within 2 trading days. Should Satellite have an explicit *positive* earnings playbook (post-earnings drift) or just allow case-by-case? My weak preference: explicit playbook, because "case-by-case" with an LLM is a recipe for inconsistent behavior.
+- [x] (2026-05-08) **No options/futures/crypto in v1.** Deferred until each gets a written policy. This is conservative; if you have a strong prior that, say, covered calls in Satellite are obviously safe, lock it in now rather than later (later means after the agent already has habits).
+- [x] (2026-05-08) **Earnings policy** (the open question in §9). Core excludes names with earnings within 2 trading days. Satellite gets an *explicit* post-earnings drift playbook rather than case-by-case treatment, because "case-by-case" with an LLM is a recipe for inconsistent behavior. Playbook to be drafted in Phase 1 as part of `doctrine/satellite_sleeve.md`.
 
 ## 2. Things you specifically need to do (no one else can)
 
@@ -62,7 +64,7 @@ These have approval delays; starting them now means they're ready when Phase 3 n
 - [ ] **Alpaca account — both paper and live.** ~10 min for paper keys; live account opening + ACH funding is ~3-5 business days. Start the live application now so the account is ready to fund $1,000 by end of Phase 3.
 - [ ] **Anthropic Console — confirm:** Opus 4.7, Sonnet 4.6, Haiku 4.5 all accessible; structured-outputs beta enabled (`anthropic-beta: structured-outputs-2025-11-13`); 1-hour prompt cache available; spend cap set to $10/mo.
 - [ ] **Perplexity Sonar API.** Verify Finance Search + Sonar Deep Research access (the Deep Research endpoint is what powers the monthly competitive landscape review).
-- [ ] **GitHub repo created**, private, branch protection on `main`, you as the only required reviewer.
+- [x] (2026-05-08) **GitHub repo created**, private. Direct pushes to `main` permitted; agent-proposed doctrine changes still flow through draft PRs as the doctrine-drift mitigation (see `riskMitigation.md` §3 R8).
 - [ ] **Discord server.** 2 minutes. Single channel + webhook URL. Save the webhook URL to a password manager.
 
 The rest (Tavily, Finnhub, Linode) can wait until their respective phases.
