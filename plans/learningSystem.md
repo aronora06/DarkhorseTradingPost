@@ -72,7 +72,7 @@ So Darkhorse "learns" in the same sense a doctor learns over a career: not by ch
 
 **Purpose:** track *how* the agent reasons, not just what it decides. Catalog the reasoning styles that recur, so we can see when style drifts.
 
-**Format:** `memory/<sleeve>/reasoning_patterns.md`, auto-generated quarterly by a Haiku-driven audit pass over a random sample of journal entries.
+**Format:** `memory/<sleeve>/reasoning_patterns/YYYY-Qn.md`, auto-generated quarterly by a Haiku-driven audit pass over a random sample of journal entries.
 
 **Retention:** quarterly snapshots; growing history.
 
@@ -236,7 +236,7 @@ Quarterly. A Haiku-driven pass reads N=50 randomly sampled journal entries (stra
 - Did the agent reference the 30-day base rate prompt, or skip it?
 - What weight did the agent place on news vs fundamentals vs technicals?
 
-The output is a categorized snapshot in `memory/<sleeve>/reasoning_patterns.md`. **This is for Aaron's eyes**, not for the agent's prompt. We do not feed the agent its own reasoning style — that's a feedback loop with bad equilibria.
+The output is a categorized snapshot in `memory/<sleeve>/reasoning_patterns/YYYY-Qn.md`. **This is for Aaron's eyes**, not for the agent's prompt. We do not feed the agent its own reasoning style — that's a feedback loop with bad equilibria.
 
 If an audit reveals a systematic reasoning weakness (e.g., "the agent treats the bear case as a 1-sentence afterthought 80% of the time"), Aaron decides whether to evolve the prompts or doctrine to compensate.
 

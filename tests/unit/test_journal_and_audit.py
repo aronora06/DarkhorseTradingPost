@@ -33,6 +33,34 @@ def test_journal_dedupes_on_intent_fingerprint(tmp_path: Path) -> None:
     assert append_jsonl_record(path, row) is False
 
 
+def test_decision_schema_accepts_phase4_evidence_fields() -> None:
+    row = _decision_row()
+    payload = row.model_dump(mode="json")
+    payload.update(
+        {
+            "model_assignments": {"risk_manager": "claude-opus-4-7"},
+            "confidence": 0.78,
+            "tools_used": [
+                {"tool": "data.quote", "args": {"symbol": "AAPL"}, "result_hash": "sha256:x"},
+            ],
+            "alpaca": {"client_order_id": "client-1", "fill_status": "pending"},
+            "cost": {
+                "input_tokens": 10,
+                "cached_input_tokens": 5,
+                "output_tokens": 3,
+                "total_usd": "0.01",
+            },
+            "outcome": None,
+        },
+    )
+
+    validated = DecisionJournalRecordV1.model_validate(payload)
+    assert validated.model_assignments["risk_manager"] == "claude-opus-4-7"
+    assert validated.tools_used[0].tool == "data.quote"
+    assert validated.alpaca is not None
+    assert validated.alpaca.client_order_id == "client-1"
+
+
 def test_audit_always_appends(tmp_path: Path) -> None:
     path = tmp_path / "audit.jsonl"
     evt = AuditLogRecordV1(

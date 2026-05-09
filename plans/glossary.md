@@ -72,7 +72,7 @@ Vocabulary used in doctrine, prompts, code, and discussion. The point of this fi
 
 ## Architectural vocabulary
 
-**Harness** — the Python orchestration around the LLM calls. Sets up sessions, loads doctrine, manages caching, logs cost, writes journal. Lives in `src/harness.py`.
+**Harness** — the Python orchestration around the LLM calls. Sets up sessions, loads doctrine, manages caching, logs cost, writes journal. Lives in `src/darkhorse/harness.py`.
 
 **Tool** — a Python function the agent can call. Tools are the agent's hands: `alpaca.submit_order`, `data.quote`, `news.sonar`, etc.
 

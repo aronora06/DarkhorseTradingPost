@@ -4,7 +4,7 @@ This document is the playbook for minimizing the downside of running a personal 
 
 It complements `initialPlan.md` — the initial plan describes *what we're building*; this document describes *what could go wrong and how we limit the damage*.
 
-**Total experiment budget:** $1,000 trading capital + ~$100/year operational costs (LLM tokens at ~$3/mo with the tiered+cached strategy in §2, plus ~$5/mo Linode hosting, plus trivial data subscription tiers). Worst-case full-year burn if everything goes wrong: $1,000 + $100 = ~$1,100. The system is designed so this number does not exceed Aaron's pre-committed budget.
+**Total experiment budget:** $1,000 trading capital + ~$100/year operational costs (LLM tokens at ~$3/mo with the tiered+cached strategy in §2, plus ~$4.20/mo Hetzner hosting per ADR-0005, plus trivial data subscription tiers). Worst-case full-year burn if everything goes wrong: $1,000 + $100 = ~$1,100. The system is designed so this number does not exceed Aaron's pre-committed budget.
 
 ---
 

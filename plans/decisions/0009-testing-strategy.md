@@ -27,6 +27,8 @@ Traditional CI testing for layers 1 and 2 is straightforward. Layer 3 requires a
 | **Manual evaluation** | Aaron + weekly review routine | Reasoning quality, doctrine fidelity. | Weekly + quarterly reasoning audit. |
 | **Paper-shadow validation window** | Live paper account, ≥ 2 weeks | Behavioral regression detection on architectural changes. | Per cross-cutting rule in `../devPhaseChecklist.md`. |
 
+Phase 3 note: cassette tests begin when `src/darkhorse/harness.py` introduces the first LLM orchestration surface. Until then, CI covers deterministic Python only; no placeholder cassette harness is required before there is a harness to replay.
+
 **CI rules:**
 - Run on PR + on push to main.
 - ruff, mypy --strict, pytest (unit + property + cassette), coverage report.

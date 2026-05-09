@@ -5,6 +5,7 @@ description = "Darkhorse Trading Outpost — agentic trading harness (private)"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
+    "anthropic>=0.100,<1",
     "httpx>=0.28,<1",
     "pydantic>=2.10,<3",
     "pydantic-settings>=2.7,<3",

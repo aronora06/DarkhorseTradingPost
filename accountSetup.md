@@ -24,26 +24,15 @@ This is the consolidated, end-to-end guide for setting up every external account
 
 ---
 
-## Where to store secrets right now (before Phase 3)
+## Where secrets live
 
-Phase 3 will create the canonical secret-handling flow per ADR-0012:
-- **Dev:** `.env` at project root, gitignored, loaded by `pydantic-settings`
-- **Production:** `/etc/darkhorse/.env`, mode 600, root-owned, on the Hetzner host
-
-Until Phase 3 lands, **secrets live in your password manager** (1Password, Bitwarden, KeePassXC, or whatever you already use). Use a single Darkhorse-specific entry — or one entry per service, your choice — and capture each secret with the **exact env-var name** from this document. That way, when Phase 3 asks you to populate `.env`, you already have a 1:1 mapping.
-
-Suggested format inside your password manager (one secure note titled "Darkhorse Secrets"):
-
-```
-ANTHROPIC_API_KEY=sk-ant-...
-ALPACA_PAPER_API_KEY=...
-ALPACA_PAPER_SECRET_KEY=...
-(etc.)
-```
+Phase 3 is complete. The canonical secret-handling flow per ADR-0012:
+- **Dev:** `.env` at project root, gitignored, loaded by `pydantic-settings`. All keys are populated (except Alpaca live which has placeholder values pending account approval).
+- **Production:** `/etc/darkhorse/.env`, mode 600, root-owned, on the Hetzner host (Phase 3.5).
+- **Backup:** Keep a copy in your password manager for disaster recovery.
 
 **What you must never do:**
-- Paste secrets into this `accountSetup.md` file.
-- Paste secrets into any committed file in the repo (a pre-commit gitleaks hook will block this once Phase 3 lands, but the discipline starts now).
+- Paste secrets into this `accountSetup.md` file or any committed file (the pre-commit gitleaks hook blocks this).
 - Send secrets in plain text over Discord, email, Slack, or chat with an AI assistant.
 - Reuse the same key across services (each service gets a fresh key).
 
@@ -51,28 +40,31 @@ ALPACA_PAPER_SECRET_KEY=...
 
 ## Quick-reference table
 
-Status as of the latest run-through. Update as you complete items.
+Status as of **2026-05-09**. All API connections verified via `tests/smoke/test_api_connections.py`.
 
 | # | Service | Status | Lead time | Cost | Env var(s) |
 |---|---|---|---|---|---|
 | 1 | GitHub (private repo) | ✅ done | — | $0 | _none in .env_ |
-| 2 | Anthropic Console | [ ] pending | minutes | usage-based, $10/mo cap | `ANTHROPIC_API_KEY` |
-| 3 | Discord (server + webhook) | ⚠ rotate then ✅ | 2 min | $0 | `DISCORD_WEBHOOK_URL` |
-| 4 | Alpaca paper account | [ ] pending | ~10 min | $0 | `ALPACA_PAPER_API_KEY`, `ALPACA_PAPER_SECRET_KEY` |
-| 5 | Alpaca live account | [ ] pending | **3–5 business days** (ACH funding) | $0 fees, $1,000 funding | `ALPACA_LIVE_API_KEY`, `ALPACA_LIVE_SECRET_KEY` |
-| 6 | SnapTrade → Fidelity | [ ] pending | **1–2 days** (Fidelity approval) | $0 | `SNAPTRADE_CLIENT_ID`, `SNAPTRADE_CONSUMER_KEY` |
-| 7 | Perplexity Sonar API | [ ] pending | minutes | ~$5 initial deposit, ~$1/mo target | `PERPLEXITY_API_KEY` |
-| 8 | Tavily | [ ] pending | minutes | $0 (free tier 1k/mo) | `TAVILY_API_KEY` |
-| 9 | Finnhub | [ ] pending | minutes | $0 (free tier) | `FINNHUB_API_KEY` |
-| **Phase 3+ accounts (start when you provision the server, not now)** | | | | | |
+| 2 | Anthropic Console | ✅ done (2026-05-09) | minutes | usage-based, $10/mo cap | `ANTHROPIC_API_KEY` |
+| 3 | Discord (server + webhook) | ✅ done (2026-05-09) | 2 min | $0 | `DISCORD_WEBHOOK_URL` |
+| 4 | Alpaca paper account | ✅ done (2026-05-09) | ~10 min | $0 | `ALPACA_PAPER_API_KEY`, `ALPACA_PAPER_SECRET_KEY` |
+| 5 | Alpaca live account | ⏳ pending — account setup in progress | **3–5 business days** (ACH funding) | $0 fees, $1,000 funding | `ALPACA_LIVE_API_KEY`, `ALPACA_LIVE_SECRET_KEY` |
+| 6 | SnapTrade → Fidelity | [ ] deferred | **1–2 days** (Fidelity approval) | $0 | `SNAPTRADE_CLIENT_ID`, `SNAPTRADE_CONSUMER_KEY` |
+| 7 | Perplexity Sonar API | ✅ done (2026-05-09) | minutes | ~$5 initial deposit, ~$1/mo target | `PERPLEXITY_API_KEY` |
+| 8 | Tavily | ✅ done (2026-05-09) | minutes | $0 (free tier 1k/mo) | `TAVILY_API_KEY` |
+| 9 | Finnhub | ✅ done (2026-05-09) | minutes | $0 (free tier) | `FINNHUB_API_KEY` |
+| **Phase 3.5+ accounts (start when you provision the server)** | | | | | |
 | 10 | Hetzner Cloud | [ ] pending | minutes (instant) | ~$4.20/mo | _server-side_ |
 | 11 | Tailscale | [ ] pending | minutes | $0 (free tier covers 3 users / 100 devices) | _server-side_ |
 | 12 | Backblaze B2 | [ ] pending | minutes | <$0.10/mo | `B2_KEY_ID`, `B2_APPLICATION_KEY` |
 | 13 | Cloudflare (DNS / Workers / Access) | [ ] pending | minutes | $0 (free tiers) | _account-level, no env_ |
 | 14 | Domain name (optional) | [ ] pending | minutes | ~$10–15/yr | _DNS_ |
 
-**Action items right now:**
-- ✅ #5 (Alpaca live) and #6 (SnapTrade) are the longest lead times. **Start these today**, even before the others, because everything else completes faster than they will.
+**Current blockers:**
+- **#5 (Alpaca live):** Account setup/authorization in progress. Placeholder keys are in `.env`; live trading is deferred until the account is approved and funded. Paper trading proceeds immediately.
+- **#6 (SnapTrade):** Deferred until Fidelity link approval. Code wrapper also deferred.
+
+**All keys configured in `.env`** and verified via smoke tests (2026-05-09) except Alpaca live (placeholder values pending account approval).
 
 ---
 
@@ -749,7 +741,7 @@ When live + SnapTrade are approved and funded/connected, you're unblocked for Ph
 ## Where this checklist is referenced
 
 - `README.md` — top-level pointer for the "what do I set up first" question
-- `suggestedNextSteps.md` §2.3 — week-1 sequencing references this for the per-account detail
+- `suggestedNextSteps.md` §3.2 — current sequencing references this for the per-account detail
 - `plans/devPhaseChecklist.md` Phase 3.6 — account funding step references this for the live Alpaca details
 - `plans/decisions/0012-configuration-and-secrets.md` — env-var name source of truth
 

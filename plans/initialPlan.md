@@ -28,11 +28,11 @@ These are non-negotiable and should be referenced in code review:
 5. **Two sleeves, two policies, one harness.** Shared infrastructure, separate doctrine, separate journals, separate limits.
 6. **The kill-switch is real.** A file flag, env var, or external endpoint that the harness checks every tick. The agent cannot disable it. Aaron can flip it from his phone.
 7. **No options/futures/leverage/crypto until each is explicitly enabled by a written policy.** The agent's default action under uncertainty is **no trade**, not a small trade.
-8. **Cost discipline.** At $1,000 AUM, model-spend and trading costs can dominate edge. See `riskMitigation.md` §2 for the tiered model strategy and prompt-caching approach. Target total monthly compute spend ≤ 0.5% of NAV.
+8. **Cost discipline.** At $1,000 AUM, model-spend and trading costs can dominate edge. See `riskMitigation.md` §2 for the tiered model strategy and prompt-caching approach. Target total monthly LLM/data compute spend ≤ 0.5% of NAV; fixed infrastructure spend is tracked separately in `frontendAndHosting.md`.
 
 ## 3. Architecture (v1)
 
-The v1 build deliberately stays close to the YouTube reference (Claude Code routines + Alpaca + file-based memory) so we can ship something working in weeks, not months. The improvements over the reference are called out in §7.
+The v1 build deliberately stays close to the reference shape (scheduled routines + Alpaca + file-based memory) while using our own Python harness and systemd scheduler decisions from ADR-0006/0008. The improvements over the reference are called out in §7.
 
 ### 3.1 Components
 
@@ -55,8 +55,8 @@ DarkhorseTradingOutpost/
 │   │   └── lessons.md           # Compiled by weekly reflection routine
 │   └── satellite/
 │       └── (same shape)
-├── src/
-│   ├── routines/                # Each is a Claude Code routine entry point
+├── src/darkhorse/
+│   ├── routines/                # systemd-invoked Python routine entry points
 │   │   ├── pre_market.py
 │   │   ├── market_open.py
 │   │   ├── midday_scan.py
@@ -66,17 +66,17 @@ DarkhorseTradingOutpost/
 │   │   ├── alpaca.py            # Account, positions, orders (with validate_order)
 │   │   ├── data.py              # Quotes, bars, fundamentals (Finnhub / yfinance)
 │   │   ├── news.py              # Sonar Finance Search + Tavily fallback
-│   │   ├── snaptrade.py         # Read-only Fidelity holdings visibility
-│   │   ├── journal.py           # Append-only JSONL writer
-│   │   └── notify.py            # Discord webhook (free) for daily recaps + alerts
+│   │   └── snaptrade.py         # Read-only Fidelity holdings visibility, deferred
 │   ├── risk/
 │   │   ├── validate_order.py    # The wall every order must pass through
 │   │   ├── sizing.py            # Per-sleeve position sizing math
 │   │   ├── kill_switch.py       # Checks file flag + env var every tick
 │   │   └── drawdown.py          # Tracks HWM, fires halt + uncle thresholds
 │   ├── evaluation/
-│   │   ├── backtest_finsaber.py # Walk-forward, post-cutoff, full-universe
-│   │   └── calibration.py       # Stated confidence vs realized P&L
+│   │   └── backtest_finsaber.py # Walk-forward, post-cutoff, full-universe
+│   ├── journal.py               # Append-only JSONL writer
+│   ├── calibration.py           # Stated confidence vs realized P&L
+│   ├── notify.py                # Discord webhook (free) for daily recaps + alerts
 │   └── harness.py               # Shared session setup, doctrine loader, logging
 ├── prompts/
 │   ├── system_core.md           # System prompt for core-sleeve agent
@@ -97,14 +97,13 @@ DarkhorseTradingOutpost/
 │   │   ├── sizing.md
 │   │   ├── idempotency.md
 │   │   └── adversarial.md
-│   ├── test_validate_order.py
-│   ├── test_kill_switch.py
-│   ├── test_drawdown.py
-│   └── test_sizing.py
+│   ├── unit/
+│   └── property/
 ├── plans/
-│   ├── architecture.md
 │   ├── initialPlan.md           # this file
 │   └── riskMitigation.md        # cost/risk mitigation playbook
+├── docs/
+│   └── architecture.md          # active architecture reference
 └── KILLSWITCH                   # File-flag the harness checks each tick
 ```
 
@@ -151,7 +150,7 @@ Tiered model assignment per role: see `riskMitigation.md` §2. **Risk-manager ru
 | Workhorse model (sub-agents) | Claude Sonnet 4.6 | 5x cheaper than Opus, ~80% SWE-bench, shares cache with Opus |
 | Cheap model (journal / reflection) | Claude Haiku 4.5 | $1/$5 per MTok, 4-5x faster than Sonnet |
 | Prompt caching | Anthropic 1-hour cache | 0.10x read cost; doctrine + journal are stable across routines |
-| Harness | Claude Code routines | Cloud cron, official MCP support, matches the reference video's primitives |
+| Harness | Custom Python harness (`src/darkhorse/harness.py`) | Own the tool loop, validation boundary, observability, and model/provider choices per ADR-0008 |
 | Broker (execute) | Alpaca | Best DX, paper/live parity, $0 minimum, official MCP server |
 | Broker (read-only) | SnapTrade or Plaid Investments → Fidelity | Visibility into existing Fidelity holdings without exposing them to execution |
 | Market data (structured) | Finnhub (free tier → paid as needed); yfinance for historical | Cheap, structured. Don't pay Sonar to get a quote. |
@@ -164,7 +163,7 @@ Tiered model assignment per role: see `riskMitigation.md` §2. **Risk-manager ru
 ## 5. Accounts to Set Up (in this order)
 
 **Free / no-funding required (do these now to unblock v1):**
-1. **Alpaca** — sign up at alpaca.markets, generate **paper-trading** API keys. No funding needed for paper. Live keys come later, after the paper window passes.
+1. **Alpaca** — sign up at alpaca.markets, generate **paper-trading** API keys. No funding needed for paper. Live keys and funding are Phase 3 gates; trading starts in Phase 4 at micro-size with paper-shadow in parallel.
 2. **Anthropic API** — Claude Code billing already in place. Confirm Opus 4.7, Sonnet 4.6, Haiku 4.5 access and structured-outputs beta enrollment. Enable 1-hour prompt caching.
 3. **Perplexity Sonar API** — register at perplexity.ai/api, fund $5 initial credit. Verify Finance Search access.
 4. **Tavily** — free tier (1,000 credits/mo) is enough for fallback research.
@@ -174,7 +173,7 @@ Tiered model assignment per role: see `riskMitigation.md` §2. **Risk-manager ru
 8. **SnapTrade** — register, connect your Fidelity account read-only (Fidelity-side approval may take 1–2 days; start early).
 
 **Funded (only when ready to go live — flagged for later):**
-9. **Alpaca live trading** — fund the account with **$1,000** split $900 Core / $100 Satellite. *This is the "real money" gate. Do not fund until §6 paper milestones are met.*
+9. **Alpaca live trading** — fund the account with **$1,000** split $900 Core / $100 Satellite. *This is the "real money" gate. Do not fund until Phase 3 foundations and operations gates are complete. The agent still starts live at micro-size in Phase 4, with paper-shadow running in parallel.*
 10. **Algo Trader Plus** ($99/mo) — only if/when the strategy needs full SIP data. v1 stays on free IEX. (Note: $99/mo is ~10% of NAV/yr at $1k, so this is gated behind a clear demonstrated need.)
 
 **Not needed for v1, possibly later:**
@@ -191,13 +190,13 @@ This is the higher-level phase summary. The granular checklist with exit criteri
 - **Phase 0 — Steering** (week 1). All steering documents written, reviewed, and committed.
 - **Phase 1 — Risk mitigation R&D** (week 2). Doctrine drafted, test specs written.
 - **Phase 2 — Architecture R&D** (week 3). ADRs filed, tool contracts typed, prompt skeletons in place.
-- **Phase 3 — Foundations build** (weeks 4–5). Risk modules + tests + hosting on Linode + Discord wired. **No agent code, no LLM calls.** Account funding happens at the end of this phase.
+- **Phase 3 — Foundations build** (weeks 4–5). Risk modules + tests + hosting on Hetzner (per ADR-0005) + Discord wired. **No agent code, no LLM calls.** Account funding happens at the end of this phase.
 
 ### Live operation begins (costs accruing)
 
 - **Phase 4 — Single-routine live at micro-size** (week 6). $50 of $900 Core deployed. Single-agent (no debate), `market_open` only. Paper-shadow account runs concurrently. Read every journal entry.
 - **Phase 5 — Multi-agent debate + full schedule, still micro-size** (weeks 7–8). All five routines, debate flow, tiered model strategy, prompt caching. Capital deployment unchanged at $50.
-- **Phase 6 — Learning system + dashboard live** (weeks 9–10). Calibration loop, weekly review, lessons proposed via PR, monthly competitive-landscape review online, dashboard fully functional on Linode. Capital still $50.
+- **Phase 6 — Learning system + dashboard live** (weeks 9–10). Calibration loop, weekly review, lessons proposed via PR, monthly competitive-landscape review online, dashboard fully functional on Hetzner. Capital still $50.
 - **Phase 7 — Backtest + adversarial gate** (week 11). FINSABER-discipline backtest, adversarial test suite. Outcome gates the size ramp.
 - **Phase 8 — Core ramp** (weeks 12–14). $50 → $200 → $500 → $900 Core deployed, one step per week, contingent on clean live-vs-paper diff and no halt firing.
 - **Phase 9 — Satellite activation** (week 15+). Satellite goes live at $100, full size. Both sleeves running.

@@ -16,3 +16,7 @@ pdt_buffered_day_trade_block_at = 2
 monthly_compute_cap_usd = 10.0
 routine_cost_cap_usd = 0.50
 stale_review_days = 14
+
+# Phase 4 deployment cap — max Core notional per order (R-V01-PHASE-CAP).
+# Raise to full sleeve target when graduating to Phase 5+.
+phase_core_deploy_cap_usd = 50.0

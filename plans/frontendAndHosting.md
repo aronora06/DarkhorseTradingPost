@@ -85,7 +85,7 @@ The page Aaron opens 90% of the time. Designed to take 30 seconds to read.
 
 ### Backend
 
-**FastAPI** in `src/web/app.py`. Same Python project as the agent — shares config, database, journal readers. No separate service.
+**FastAPI** in `src/darkhorse/web/app.py`. Same Python project as the agent — shares config, database, journal readers. No separate service.
 
 Read endpoints query the journal (JSONL or SQLite-indexed view of it), positions snapshots, calibration log, doctrine git history. Write endpoints are limited to kill-switch toggle and doctrine-PR approval.
 
@@ -129,7 +129,7 @@ Specs: 1 vCPU, 1GB RAM, 25GB SSD, 1TB egress. Sufficient for the agent + FastAPI
 
 ### Alternatives considered
 
-- **Hetzner CX22** (~€4/mo, 4GB RAM, 2 vCPU) — more compute per dollar, EU location adds latency to Alpaca. Good fallback if Linode pricing changes.
+- **Hetzner CX22** (~€4/mo, 4GB RAM, 2 vCPU) — now selected in Ashburn US by ADR-0005. The earlier EU-latency concern no longer applies to the chosen region.
 - **Vultr Regular Cloud** ($5/mo, 1GB) — comparable to Linode.
 - **AWS Lightsail** ($5/mo) — vendor lock-in to AWS ecosystem, and the savings aren't worth it for a single instance.
 - **Fly.io** — interesting for stateless apps; our app has state; not the right fit.
@@ -223,7 +223,7 @@ A future-Aaron improvement is GitHub Actions auto-deploy via Tailscale, but that
 
 ## Open Decisions for Phase 7
 
-- Linode region selection — needs latency test against Alpaca's data center
+- Hetzner Ashburn latency check against Alpaca's API
 - Whether to use Caddy (simpler HTTPS) or nginx (more control)
 - Plotly vs Chart.js (start with Plotly, fall back if perf issue)
 - Cloudflare Access enable/skip at launch

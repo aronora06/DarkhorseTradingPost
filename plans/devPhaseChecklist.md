@@ -117,8 +117,8 @@ What we do instead:
 
 - [x] (2026-05-09) `docs/architecture.md` populated — component diagram, data flow, sequence diagrams for each routine, tool contracts (moved from `plans/architecture.md` to `docs/architecture.md` to separate active code reference from steering plans)
 - [x] (2026-05-08) `plans/dataSchema.md` finalized
-- [ ] Tool contract definitions: Python type stubs in `src/darkhorse/tools/_contracts.py` for every tool (Phase 3 deliverable)
-- [ ] Prompt skeletons: empty-but-structured `prompts/system_core.md`, `system_satellite.md`, `researcher.md`, `bull_analyst.md`, `bear_analyst.md`, `risk_manager.md`, `reflection.md`, `monthly_competitive_review.md` (Phase 3 deliverable)
+- [x] (2026-05-09) Tool contract definitions: Python type stubs in `src/darkhorse/tools/_contracts.py` for every planned deterministic tool (Phase 3 deliverable)
+- [x] (2026-05-09) Prompt skeletons: empty-but-structured `prompts/system_core.md`, `system_satellite.md`, `researcher.md`, `bull_analyst.md`, `bear_analyst.md`, `risk_manager.md`, `reflection.md`, `monthly_competitive_review.md` (Phase 3 deliverable)
 - [x] (2026-05-09) `plans/decisions/0001-tool-integration-anthropic-sdk-vs-mcp.md` (replaces planned `0001-alpaca-mcp-vs-wrapper.md`)
 - [x] (2026-05-09) `plans/decisions/0002-tiered-model-strategy.md`
 - [x] (2026-05-09) `plans/decisions/0003-memory-architecture.md`
@@ -142,39 +142,46 @@ What we do instead:
 
 ### 3.1 Repo scaffolding
 
-- [ ] Python project initialized per ADR-0007: `pyproject.toml` (single config source), `uv` env management, `ruff`, `pytest`, `mypy --strict`, Hypothesis, pydantic v2, pydantic-settings, structlog, httpx, tenacity
-- [ ] `src/darkhorse/` package layout per ADR-0007 §"Repository layout"
-- [ ] Pre-commit hooks: ruff, mypy, pytest-on-changed-files, gitleaks (no-secrets check)
-- [ ] CI: GitHub Actions per ADR-0010 — ruff, mypy, pytest, coverage report on every PR
-- [ ] `.env.example` committed with every variable documented per ADR-0012
+- [x] (2026-05-09) Python project initialized per ADR-0007: `pyproject.toml` (single config source), `uv` env management, `ruff`, `pytest`, `mypy --strict`, Hypothesis, pydantic v2, pydantic-settings, structlog, httpx, tenacity
+- [x] (2026-05-09) `src/darkhorse/` package layout per ADR-0007 §"Repository layout"
+- [x] (2026-05-09) Pre-commit hooks: ruff, mypy, full pytest, gitleaks (no-secrets check)
+- [x] (2026-05-09) CI: GitHub Actions per ADR-0010 — ruff, mypy, pytest, coverage report on every PR
+- [x] (2026-05-09) `.env.example` committed with every variable documented per ADR-0012
 
 ### 3.2 Risk modules
 
-- [ ] `src/darkhorse/risk/sizing.py` with full unit tests
-- [ ] `src/darkhorse/risk/drawdown.py` — HWM tracking, halt firing, uncle-point firing — tests cover the recovery-without-HWM-reset rule
-- [ ] `src/darkhorse/risk/kill_switch.py` — checks `KILLSWITCH` file, env var, optional remote endpoint
-- [ ] `src/darkhorse/risk/validate_order.py` — every rule from the spec; bypass attempts fail loudly
-- [ ] `src/darkhorse/risk/wind_down.py` — implements the `riskMitigation.md` §6 wind-down rule (so it can fire from day 1 of live)
-- [ ] Property-based tests using Hypothesis on validate_order rules (per ADR-0009)
+- [x] (2026-05-09) `src/darkhorse/risk/sizing.py` with full unit tests
+- [x] (2026-05-09) `src/darkhorse/risk/drawdown.py` — HWM tracking, halt firing, uncle-point firing — tests cover the recovery-without-HWM-reset rule
+- [x] (2026-05-09) `src/darkhorse/risk/kill_switch.py` — checks `KILLSWITCH` file, env var, optional remote endpoint
+- [x] (2026-05-09) `src/darkhorse/risk/validate_order.py` — every rule from the spec; bypass attempts fail loudly
+- [x] (2026-05-09) `src/darkhorse/risk/wind_down.py` — implements the `riskMitigation.md` §6 wind-down rule (so it can fire from day 1 of live)
+- [x] (2026-05-09) Property-based tests using Hypothesis on validate_order rules (per ADR-0009)
 
 ### 3.3 Core utilities
 
-- [ ] `src/darkhorse/journal.py` — append-only JSONL writer, schema-validated, daily file rotation
-- [ ] `src/darkhorse/calibration.py` — confidence vs realized P&L tracker
-- [ ] `src/darkhorse/idempotency.py` — deterministic `client_order_id` derivation
-- [ ] `src/darkhorse/notify.py` — Discord webhook wrapper with retry + dead-letter (per ADR-0011)
-- [ ] `src/darkhorse/config.py` — pydantic-settings loader (per ADR-0012)
-- [ ] `src/darkhorse/audit.py` — append-only audit log writer
-- [ ] `src/darkhorse/schemas/` — pydantic models for every JSONL/MD shape (per `dataSchema.md`)
+- [x] (2026-05-09) `src/darkhorse/journal.py` — append-only JSONL writer, schema-validated, daily file rotation
+- [x] (2026-05-09) `src/darkhorse/calibration.py` — confidence vs realized P&L tracker
+- [x] (2026-05-09) `src/darkhorse/idempotency.py` — deterministic `client_order_id` derivation
+- [x] (2026-05-09) `src/darkhorse/notify.py` — Discord webhook wrapper with retry + dead-letter (per ADR-0011)
+- [x] (2026-05-09) `src/darkhorse/config.py` — pydantic-settings loader (per ADR-0012)
+- [x] (2026-05-09) `src/darkhorse/audit.py` — append-only audit log writer
+- [x] (2026-05-09) `src/darkhorse/schemas/` — pydantic models for shipped JSONL shapes (decision, audit, calibration); extend as new persisted artifacts ship
 
 ### 3.4 Tools (deterministic only — no LLM)
 
-- [ ] `src/darkhorse/tools/_contracts.py` — pydantic input/output models for every tool, `strict: true`-ready
-- [ ] `src/darkhorse/tools/alpaca.py` — connect to live + paper, fetch account, fetch positions, place order, cancel order. Every order routes through `validate_order()`. Tests use Alpaca's paper sandbox.
-- [ ] `src/darkhorse/tools/data.py` — Finnhub quotes + bars, yfinance fallback. Cache results within a routine.
-- [ ] `src/darkhorse/tools/news.py` — Sonar Finance Search wrapper, Tavily fallback. Unicode-NFKC normalize all returned text. Validate ticker mentions against the asset list.
+- [x] (2026-05-09) `src/darkhorse/tools/_contracts.py` — pydantic input/output models for every planned deterministic tool, `strict: true`-ready
+- [x] (2026-05-09) `src/darkhorse/tools/alpaca.py` — connect to live + paper, fetch account, fetch positions, place order, cancel order. Every order routes through `validate_order()`. Unit tests use mocked HTTP; optional paper sandbox smoke test stays env-gated and skipped in CI.
+- [x] (2026-05-09) `src/darkhorse/tools/data.py` — Finnhub quotes + bars, Yahoo Finance-compatible fallback. Cache results within a routine.
+- [x] (2026-05-09) `src/darkhorse/tools/news.py` — Sonar Finance Search wrapper, Tavily fallback. Unicode-NFKC normalize all returned text. Validate ticker mentions against the asset list.
 - [ ] `src/darkhorse/tools/snaptrade.py` — read-only Fidelity holdings (deferred until SnapTrade-Fidelity link is approved)
-- [ ] Asset-list refresher: weekly job pulls Alpaca's `assets` endpoint, writes `data/assets/YYYY-MM-DD.json`
+- [x] (2026-05-09) Asset-list refresher: weekly job pulls Alpaca's `assets` endpoint, writes `data/assets/YYYY-MM-DD.json`
+- [x] (2026-05-09) `src/darkhorse/routines/market_open.py` dry-run composition skeleton: loads settings, kill-switch state, asset whitelist, account, positions, and builds `ValidationContext`; no LLM calls and no broker submission.
+- [x] (2026-05-09) Cassette/replay scaffolding: `CassetteTransport` (httpx-based record/replay), record CLI, seed cassette, 13 tests. Ready for production harness.
+- [x] (2026-05-09) Drawdown/wind-down state wired into routine composition: `DrawdownState`, `core_drawdown_flags()`, `satellite_drawdown_flags()`, `soft_wind_down_core_to_spy()`, daily loss halt, trades-today-in-sleeve all flow into `ValidationContext`.
+- [x] (2026-05-09) Journal/audit envelopes: `build_routine_start_audit()`, `build_no_trade_decision()` emit audit/journal records from composition on every run.
+- [x] (2026-05-09) Phase 4 $50 Core deployment cap wired end-to-end: `phase_core_deploy_cap_usd` in Settings/TOML → `max_core_deploy_usd` on `ValidationContext` → `R-V01-PHASE-CAP` in `validate_order`.
+- [x] (2026-05-09) API connections verified: Anthropic, Alpaca paper, Perplexity Sonar, Tavily, Finnhub, Discord — all keys in `.env`, smoke tests at `tests/smoke/test_api_connections.py`.
+- [x] (2026-05-09) `anthropic` SDK added as runtime dependency (v0.100+).
 
 ### 3.5 Hosting & infrastructure
 
@@ -190,22 +197,44 @@ What we do instead:
 
 ### 3.6 Account funding
 
-- [ ] **Alpaca live account funded with $1,000.** Real money in. The capital is in the account; deployment ramps from $50 in Phase 4.
+- [ ] **Alpaca live account funded with $1,000.** Live account setup is in progress, awaiting authorization. This does **not** block Phase 4a (paper trading). Real money deployment happens in Phase 4b once the live account is approved and paper trading has proven clean.
 
-**Exit criteria:** `pytest` green, `mypy --strict` clean, manually-submitted bad orders rejected by `validate_order` 100% of the time across the property-based test suite. Discord webhook fires test message. Alpaca live + paper accounts both connect successfully. Linode reachable via Tailscale. Live account funded with $1,000 sitting as cash.
+**Exit criteria (updated for paper-first approach):** `pytest` green, `mypy --strict` clean, `validate_order` rejects 100% of property-based adversarial inputs. Discord webhook fires test message. Alpaca paper account connects successfully. All API keys verified via smoke tests. Phase 3.5 hosting can proceed in parallel.
 
 ---
 
-## Phase 4 — First Live Trade at Micro-Size
+## Phase 4a — First Paper Trade (Agent Proving Ground)
 
-**Goal:** Smallest viable agent making real trades with real money. Catch bugs at the smallest possible cost.
+**Goal:** Get the agent making real decisions against the Alpaca paper account. Validate the entire pipeline end-to-end before any real money touches it. This phase proceeds immediately — it does not require the Alpaca live account.
 
-- [ ] `src/harness.py` — session setup, doctrine loader, prompt-cache enrolment, structured-output enrolment, error envelopes
-- [ ] `prompts/system_core.md` — full doctrine pasted in via cache, decision JSON schema, "30-day base rate" forced section, "default action is NO_TRADE" reinforced
-- [ ] `src/routines/market_open.py` — single-agent (no debate yet), Core sleeve only, writes to `memory/core/journal/YYYY-MM-DD.jsonl`
-- [ ] **Hard-coded position cap of $50 in `validate_order` for Phase 4.** The agent cannot deploy more than $50 of Core capital regardless of what it requests. Rest of Core stays as cash.
-- [ ] systemd timer fires `market_open.py` at 9:35 AM ET weekdays (live mode)
-- [ ] **Paper-shadow account configured.** Same routine fires against the paper account in parallel; results journaled to `memory/core/paper_shadow/journal/YYYY-MM-DD.jsonl`
+- [x] (2026-05-09) `src/darkhorse/harness.py` — production Anthropic loop: researcher (Sonnet 4.6) with tool loop, risk-manager (Opus 4.7) with structured JSON output, prompt caching (1h TTL), per-call cost telemetry, tenacity retry, structlog. 784 lines.
+- [x] (2026-05-09) `prompts/system_core.md` — full doctrine injection, decision JSON schema, 30-day base rate, NO_TRADE default, hard boundaries, Phase 4 constraints, anti-pattern catalog reference.
+- [x] (2026-05-09) `prompts/researcher.md` — tool usage protocol, output structure (account/market/durable/headlines/gaps/tools-used), data quality requirements.
+- [x] (2026-05-09) `prompts/risk_manager.md` — decision JSON schema with field rules, confidence calibration (0.70), reasoning checklist, Python-validates hard boundary.
+- [x] (2026-05-09) `src/darkhorse/routines/market_open.py` — end-to-end pipeline: compose → harness → confidence gate → validate_order → submit_order (Alpaca paper) → journal + audit + Discord notify. 159 tests, 88.85% coverage.
+- [x] (2026-05-09) **$50 deployment cap wired into `validate_order`** via `R-V01-PHASE-CAP` and `phase_core_deploy_cap_usd` in Settings.
+- [ ] Record initial cassettes from a live harness run (`uv run python -m darkhorse.testing.record market_open_initial`)
+- [ ] First successful end-to-end paper run: agent fetches state, decides, validates, places paper order (or NO_TRADE) ≤ $50, journals
+- [ ] Local scheduler (cron/launchd on Mac) fires `market_open.py` at 9:35 AM ET weekdays in paper mode
+- [ ] Run for **5 trading days minimum** on paper. Aaron reads every journal entry.
+- [ ] Daily Discord recap includes: paper decision, cost, any errors
+- [ ] Anti-pattern catalog updated based on observations from those 5 days
+
+**Exit criteria:** 5 clean paper trading days at $50 max deployed. Every decision reconstructable from the journal. Zero `validate_order` bypasses. Zero hallucinated tickers. Zero unintended day-trades. Token spend within budget. Discord daily recap fires reliably.
+
+---
+
+## Phase 4b — First Live Trade at Micro-Size
+
+**Goal:** Once the Alpaca live account is approved/funded AND Phase 4a has proven clean, activate live trading at micro-size. This phase cannot begin until both conditions are met.
+
+**Prerequisites:**
+- Phase 4a exit criteria met (5 clean paper days)
+- Alpaca live account approved, funded with $1,000, API keys in `.env`
+- Live connectivity verified via `DARKHORSE_ALLOW_NETWORK_TESTS=1 uv run pytest tests/smoke/ -v`
+
+- [ ] Switch `market_open.py` to live mode (`BrokerEnvironment.LIVE`)
+- [ ] **Paper-shadow account runs in parallel.** Same routine fires against paper; results journaled to `memory/core/paper_shadow/journal/YYYY-MM-DD.jsonl`
 - [ ] First successful end-to-end live run: agent fetches state, decides, validates, places live order (or NO_TRADE) ≤ $50, journals
 - [ ] Run for **5 trading days minimum**. Aaron reads every journal entry and every paper-shadow entry.
 - [ ] Daily Discord recap includes: live decision, paper-shadow decision, divergence flag if they disagree
@@ -222,20 +251,20 @@ What we do instead:
 ### 5.1 Multi-agent flow
 
 - [ ] `prompts/researcher.md`, `bull_analyst.md`, `bear_analyst.md`, `risk_manager.md` written
-- [ ] Multi-agent orchestration in `src/harness.py` — researcher → parallel bull/bear → risk-manager
+- [ ] Multi-agent orchestration in `src/darkhorse/harness.py` — researcher → parallel bull/bear → risk-manager
 - [ ] Risk-manager runs Opus 4.7; sub-agents run Sonnet 4.6
 - [ ] Anthropic 1-hour prompt cache enabled on doctrine + journal context
-- [ ] Structured outputs beta enabled on the risk-manager's decision JSON
+- [ ] Structured outputs enabled on the risk-manager's decision JSON
 - [ ] Cache hit-rate telemetry logged per routine; if <60% hit rate after 1 week, debug
 - [ ] Side-by-side single-agent paper account continues alongside multi-agent live (RQ6 data collection starts here)
 
 ### 5.2 Full routine schedule
 
-- [ ] `pre_market.py` (8:30 AM ET)
-- [ ] `market_open.py` updated to use full debate flow (9:35 AM ET)
-- [ ] `midday_scan.py` (12:30 PM ET)
-- [ ] `end_of_day.py` (4:05 PM ET)
-- [ ] `weekly_review.py` (Fri 5:00 PM ET) — runs Haiku 4.5, compiles lessons, proposes doctrine PRs
+- [ ] `src/darkhorse/routines/pre_market.py` (8:30 AM ET)
+- [ ] `src/darkhorse/routines/market_open.py` updated to use full debate flow (9:35 AM ET)
+- [ ] `src/darkhorse/routines/midday_scan.py` (12:30 PM ET)
+- [ ] `src/darkhorse/routines/end_of_day.py` (4:05 PM ET)
+- [ ] `src/darkhorse/routines/weekly_review.py` (Fri 5:00 PM ET) — runs Haiku 4.5, compiles lessons, proposes doctrine PRs
 - [ ] All five routines registered in systemd
 
 ### 5.3 Both sleeves operational, Satellite at $0
@@ -263,19 +292,19 @@ What we do instead:
 
 ### 6.1 Learning system
 
-- [ ] `src/learning/distillation.py` — lesson distillation
-- [ ] `src/learning/decay.py` — lesson sunset/re-validation policy
-- [ ] `src/learning/calibration_analysis.py` — calibration drift detection
-- [ ] `src/learning/anti_pattern_extraction.py` — automated post-mortem trigger
-- [ ] `src/learning/reasoning_audit.py` — quarterly Haiku-driven critique pass
-- [ ] `src/routines/monthly_competitive_review.py` — agentic web review per `learningSystem.md` §5
+- [ ] `src/darkhorse/learning/distillation.py` — lesson distillation
+- [ ] `src/darkhorse/learning/decay.py` — lesson sunset/re-validation policy
+- [ ] `src/darkhorse/learning/calibration_analysis.py` — calibration drift detection
+- [ ] `src/darkhorse/learning/anti_pattern_extraction.py` — automated post-mortem trigger
+- [ ] `src/darkhorse/learning/reasoning_audit.py` — quarterly Haiku-driven critique pass
+- [ ] `src/darkhorse/routines/monthly_competitive_review.py` — agentic web review per `learningSystem.md` §5
 - [ ] First scheduled monthly competitive-landscape review fires on schedule
 - [ ] First quarterly retrospective routine wired (will fire at quarter-end)
 - [ ] Hypothesis registry online: `RESEARCH/hypotheses/` with at least the initial hypotheses from `researchCharter.md` filed
 
 ### 6.2 Dashboard
 
-- [ ] FastAPI app in `src/web/app.py` with read endpoints per `frontendAndHosting.md`
+- [ ] FastAPI app in `src/darkhorse/web/app.py` with read endpoints per `frontendAndHosting.md`
 - [ ] Write endpoints: KILLSWITCH toggle, doctrine-PR approval/rejection
 - [ ] Tailscale-only auth wired
 - [ ] Dashboard pages: Overview, Portfolio Detail, Performance, Calibration, Decisions Feed, Lessons & Doctrine, Anti-Patterns, Costs, System Health
@@ -290,15 +319,15 @@ What we do instead:
 
 **Goal:** Subject the system to FINSABER-style backtesting and an adversarial test suite. Outcome **gates** the size ramp in Phase 8.
 
-- [ ] `src/evaluation/backtest_finsaber.py` — walk-forward, post-cutoff data only, full universe including delistings
+- [ ] `src/darkhorse/evaluation/backtest_finsaber.py` — walk-forward, post-cutoff data only, full universe including delistings
 - [ ] Baseline: SPY buy-and-hold over the same windows
 - [ ] Backtest produces a written report — Sharpe vs SPY, max DD vs SPY, drawdown profile, trades per period, calibration on backtested data
-- [ ] Adversarial suite in `src/evaluation/adversarial.py` — Unicode homoglyph tickers, fabricated headlines with hidden-text injection, stale quotes, bad tool returns
+- [ ] Adversarial suite in `src/darkhorse/evaluation/adversarial.py` — Unicode homoglyph tickers, fabricated headlines with hidden-text injection, stale quotes, bad tool returns
 - [ ] Adversarial pass rate must be 100% — `validate_order` blocks every malicious order
 - [ ] Stress windows tested explicitly: most recent post-cutoff drawdown period, sideways period, bull period
 - [ ] Cost-per-decision measured against the budget; project full-year cost
 
-**Exit criteria:** Risk-adjusted edge non-negative vs SPY on out-of-sample backtest. Adversarial 100%. Cost projection within budget. **Aaron makes an explicit go/no-go call on the size ramp.**
+**Exit criteria:** Risk-adjusted edge non-negative vs SPY on out-of-sample backtest. Adversarial 100%. Cost projection within budget. RQ6 side-by-side paper data is accumulating but is not expected to have its full 60-trading-day window yet. **Aaron makes an explicit go/no-go call on the size ramp.**
 
 ---
 

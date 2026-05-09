@@ -62,6 +62,7 @@ class Settings(BaseSettings):
     monthly_compute_cap_usd: float = 10.0
     routine_cost_cap_usd: float = 0.50
     stale_review_days: int = 14
+    phase_core_deploy_cap_usd: float | None = 50.0
 
     @classmethod
     def settings_customise_sources(

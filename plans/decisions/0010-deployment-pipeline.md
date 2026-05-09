@@ -25,7 +25,8 @@ Pipeline stages:
    - `uv run ruff format --check`
    - `uv run mypy --strict src/`
    - `uv run pytest -ra` (unit + property + cassette tests)
-   - Coverage report; fail if `src/darkhorse/risk/` coverage < 95%
+   - Package coverage report; fail if `darkhorse` coverage < 88%
+   - Dedicated risk coverage gate; fail if `darkhorse.risk` coverage < 95%
    - Estimated runtime: <2 minutes
 
 2. **Post-merge to main** (GitHub Actions, no auto-deploy):

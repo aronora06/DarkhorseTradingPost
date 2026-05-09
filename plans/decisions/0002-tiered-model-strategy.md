@@ -22,7 +22,7 @@ The decision is which model to assign to which agent role, and how to use prompt
 
 **Prompt caching:** Anthropic 1-hour TTL cache, applied to doctrine + last-30-days journal summary + tool definitions. Per `../riskMitigation.md` §2.4, this delivers ~73% cost reduction on input tokens.
 
-**Hard pass:** China-hosted models (DeepSeek, Kimi, Qwen) and self-hosted models. Rationale documented in `../riskMitigation.md` §2.3 and signed off in `../../suggestedNextSteps.md` §1.3.
+**Hard pass:** China-hosted models (DeepSeek, Kimi, Qwen) and self-hosted models. Rationale documented in `../riskMitigation.md` §2.3 and signed off in `../../suggestedNextSteps.md` §2.3.
 
 **Optional cheap-for-bulk** (not v1): Gemini 3.1 Flash-Lite for pre-screen / news scan if/when bulk text processing becomes a bottleneck. US-hosted, native search grounding. Defer until profiling shows a need.
 

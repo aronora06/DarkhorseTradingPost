@@ -16,17 +16,16 @@ If you're trying to understand "what we decided and why," start in `plans/`. If 
 | File | Purpose |
 |---|---|
 | [`architecture.md`](architecture.md) | The master architectural reference for the codebase: layers, data flow, deployment topology, extensibility hooks, ADR index |
-| [`developer-handoff-phase3.md`](developer-handoff-phase3.md) | Phase 3 implementation status, code/doc review notes, and prioritized next steps for the next agent (living; update as phases advance) |
+| [`runbook.md`](runbook.md) | Local setup, quality gates, pre-commit, CI, and current Phase 3 runtime-operation limits |
 
 **Related (outside `docs/`):** [`doctrine/`](../doctrine/) — trading constitution Markdown (**Phase 1 approved 2026-05-09**); [`tests/specs/`](../tests/specs/) — Markdown specs implemented by Phase 3 tests (**same sign-off**).
 
 ## Planned additions (as code is built)
 
-These are the documents that will live here as Phase 3+ delivers the system. None exist yet.
+These remaining documents will live here as Phase 3+ delivers more of the system.
 
 | File | Purpose | Phase |
 |---|---|---|
-| `runbook.md` | Day-to-day operational tasks (deploy, rollback, restore from backup, inspect logs, rotate secrets) | Phase 3.5 |
 | `setup.md` | One-shot environment setup for a new VPS (Ubuntu, Tailscale, systemd units, secrets, first run) | Phase 3.5 |
 | `developer-onboarding.md` | First-day guide for a new contributor (or future-Aaron returning after a long break) | Phase 3 |
 | `troubleshooting.md` | Common failure modes and how to investigate (broker outage, cache misses, halt unfreeze, kill-switch flow) | Phase 4+ |
@@ -41,3 +40,4 @@ These are the documents that will live here as Phase 3+ delivers the system. Non
 - **Cross-link to ADRs and code.** Every architectural choice referenced here links to the ADR (in `plans/decisions/`) and the relevant code module (in `src/darkhorse/`).
 - **Markdown, no auto-generators yet.** Hand-written until we have enough surface to justify auto-generation (likely Phase 6+).
 - **Write for future-Aaron.** Assume the reader is competent but has been away from this project for 6+ months.
+- **No agent handoff files.** Agent-to-agent handoffs are generated in chat for Aaron to copy into the next session; do not commit transient next-agent backlog documents.

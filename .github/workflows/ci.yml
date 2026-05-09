@@ -36,3 +36,16 @@ jobs:
           --cov=darkhorse
           --cov-report=term-missing
           --cov-fail-under=88
+
+      - name: Risk coverage gate
+        run: >
+          uv run pytest -q
+          tests/property/test_validate_order_properties.py
+          tests/unit/test_drawdown.py
+          tests/unit/test_kill_switch.py
+          tests/unit/test_sizing.py
+          tests/unit/test_validate_order.py
+          tests/unit/test_wind_down.py
+          --cov=darkhorse.risk
+          --cov-report=term-missing
+          --cov-fail-under=95
