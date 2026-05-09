@@ -329,7 +329,12 @@ def _build_journal_record(
     decision_id = generate_decision_id()
 
     tools_used = tuple(
-        ToolUseRecordV1(tool=t["tool"], args=t.get("args", {})) for t in result.tools_used
+        ToolUseRecordV1(
+            tool=t["tool"],
+            args=t.get("args", {}),
+            result_hash=t.get("result_hash"),
+        )
+        for t in result.tools_used
     )
     cost = CostRecordV1(
         input_tokens=result.total_cost.input_tokens,
@@ -363,17 +368,22 @@ def _build_journal_record(
         doctrine_version=git_sha,
         prompt_version=git_sha,
         model_assignments=result.model_assignments,
-        ticker=decision.ticker,
+        ticker=decision.ticker or None,
         action=decision.action,
-        qty=str(decision.qty) if decision.qty else None,
-        order_type=decision.order_type,
-        limit_price=decision.limit_price,
+        qty=str(decision.qty) if decision.qty > 0 else None,
+        order_type=decision.order_type if decision.order_type != "none" else None,
+        limit_price=decision.limit_price or None,
         time_in_force=decision.time_in_force,
-        confidence=decision.confidence,
-        expected_horizon_days=decision.expected_horizon_days,
-        expected_outcome_pct=decision.expected_outcome_pct,
-        thesis_summary=decision.thesis_summary,
-        reasoning_trace=decision.reasoning_trace,
+        confidence=decision.confidence if decision.confidence > 0.0 else None,
+        expected_horizon_days=(
+            decision.expected_horizon_days if decision.expected_horizon_days > 0 else None
+        ),
+        expected_outcome_pct=(
+            decision.expected_outcome_pct if decision.expected_outcome_pct != 0.0 else None
+        ),
+        thesis_summary=decision.thesis_summary or None,
+        reasoning_steps=decision.reasoning_steps,
+        research_context=result.research_text or None,
         tools_used=tools_used,
         intent_fingerprint=fingerprint,
         validate_order_passed=False,
@@ -390,7 +400,7 @@ def _build_order_from_decision(
     snapshot: RoutineCompositionSnapshot,
 ) -> tuple[OrderRequest | None, dict[str, Any]]:
     """Convert LLM decision to an OrderRequest. Returns (order, ctx_updates) or (None, {})."""
-    if decision.ticker is None or decision.qty is None or decision.order_type is None:
+    if not decision.ticker or decision.qty <= 0 or decision.order_type == "none":
         return None, {}
 
     try:

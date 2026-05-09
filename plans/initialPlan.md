@@ -6,7 +6,7 @@ Darkhorse Trading Outpost is **Aaron Parker's personal AI trading assistant**. I
 
 **Starting capital: $1,000, plus operational costs.** This is intentional — small enough that total loss is survivable as a learning expense, large enough that the system must respect costs, spreads, and the same risk discipline a real strategy would apply at $100k. The total experiment budget is $1,000 of trading capital plus an estimated ~$100/year in operational costs (LLM tokens, hosting, data subscriptions; see `riskMitigation.md` §2.5 for the breakdown).
 
-**Real money from the moment the agent runs.** We do not run an extended paper-trading phase before going live. The reasoning: subscription and token costs accrue whether we're trading paper or real, and we'd rather every dollar of cost produce real signal. The agent goes live at micro-size ($50 of $900 Core deployed) the first day it runs a routine, with capital deployment ramping based on observed behavior. A paper-shadow account runs concurrently for free (using the same prompts, same routines) as a divergence detector, but we never gate progress on a paper-only milestone.
+**Paper proves the system, then real money at micro-size.** *(Supersedes the original "real money from day 1" approach — Aaron deliberately adopted paper-first sequencing; see `suggestedNextSteps.md` §1.)* The agent first runs against the Alpaca paper account for a minimum of 5 clean trading days, validating the full pipeline (harness, journal, audit, Discord, cost tracking) before any real money touches it. Once paper trading is proven and the Alpaca live account is approved/funded, the agent goes live at micro-size ($50 of $900 Core deployed) with capital deployment ramping based on observed behavior. A paper-shadow account runs concurrently as a divergence detector throughout live trading.
 
 The portfolio is split **90/10**:
 
@@ -23,7 +23,7 @@ These are non-negotiable and should be referenced in code review:
 
 1. **Risk lives in code, not prompts.** Every order passes through a Python `validate_order()` function that enforces position size, sleeve limits, daily loss kill-switch, drawdown halt, and asset-class allow-lists. You cannot prompt-engineer your way around an `if` statement.
 2. **Stateless agents, durable memory.** Each routine wakes with no memory and reads its world from disk. Memory rot, recency bias, and silent state corruption are the failure modes — design against them.
-3. **Tested before live; ramp by size, not by paper-vs-live.** Risk modules are unit-tested before any agent code exists. Once the agent runs, it runs against real money — but capital deployment ramps from micro-size ($50) to full size ($900) based on observed behavior. A paper-shadow account runs concurrently throughout as a divergence detector. Architectural changes (new prompt, new model, new tool) run in paper-shadow for ≥ 2 weeks before being merged into the live path; the live system continues unchanged during that window.
+3. **Tested before live; paper proves the system, then ramp by size.** Risk modules are unit-tested before any agent code exists. The agent first proves itself on paper trading (minimum 5 clean days), then goes live at micro-size ($50) and ramps to full size ($900) based on observed behavior. A paper-shadow account runs concurrently throughout live trading as a divergence detector. Architectural changes (new prompt, new model, new tool) run in paper-shadow for ≥ 2 weeks before being merged into the live path; the live system continues unchanged during that window.
 4. **Idempotent and reconstructable.** Every decision is journaled with enough context to reconstruct what the agent saw and why it acted. Every order carries an idempotency key. The system can crash and restart mid-routine without double-trading.
 5. **Two sleeves, two policies, one harness.** Shared infrastructure, separate doctrine, separate journals, separate limits.
 6. **The kill-switch is real.** A file flag, env var, or external endpoint that the harness checks every tick. The agent cannot disable it. Aaron can flip it from his phone.
@@ -190,13 +190,13 @@ This is the higher-level phase summary. The granular checklist with exit criteri
 - **Phase 0 — Steering** (week 1). All steering documents written, reviewed, and committed.
 - **Phase 1 — Risk mitigation R&D** (week 2). Doctrine drafted, test specs written.
 - **Phase 2 — Architecture R&D** (week 3). ADRs filed, tool contracts typed, prompt skeletons in place.
-- **Phase 3 — Foundations build** (weeks 4–5). Risk modules + tests + hosting on Hetzner (per ADR-0005) + Discord wired. **No agent code, no LLM calls.** Account funding happens at the end of this phase.
+- **Phase 3 — Foundations build** (weeks 4–5). Risk modules + tests + hosting on Linode (per ADR-0005) + Discord wired. Account funding happens at the end of this phase.
 
 ### Live operation begins (costs accruing)
 
 - **Phase 4 — Single-routine live at micro-size** (week 6). $50 of $900 Core deployed. Single-agent (no debate), `market_open` only. Paper-shadow account runs concurrently. Read every journal entry.
 - **Phase 5 — Multi-agent debate + full schedule, still micro-size** (weeks 7–8). All five routines, debate flow, tiered model strategy, prompt caching. Capital deployment unchanged at $50.
-- **Phase 6 — Learning system + dashboard live** (weeks 9–10). Calibration loop, weekly review, lessons proposed via PR, monthly competitive-landscape review online, dashboard fully functional on Hetzner. Capital still $50.
+- **Phase 6 — Learning system + dashboard live** (weeks 9–10). Calibration loop, weekly review, lessons proposed via PR, monthly competitive-landscape review online, dashboard fully functional on Linode. Capital still $50.
 - **Phase 7 — Backtest + adversarial gate** (week 11). FINSABER-discipline backtest, adversarial test suite. Outcome gates the size ramp.
 - **Phase 8 — Core ramp** (weeks 12–14). $50 → $200 → $500 → $900 Core deployed, one step per week, contingent on clean live-vs-paper diff and no halt firing.
 - **Phase 9 — Satellite activation** (week 15+). Satellite goes live at $100, full size. Both sleeves running.
@@ -279,7 +279,7 @@ The reference uses Opus for everything. We use Opus only for the risk-manager fi
 
 **Core: S&P 500 only.** With ~9–20 positions max at this account size, the binding constraint is bid-ask spread + slippage, not analytical breadth. Large-caps have tight spreads, deep liquidity, and exhaustive news flow Claude can reason about. Filters: $10 price floor, 20-day ADV ≥ $25M, 25% sector cap (GICS), exclude leveraged/inverse ETFs, exclude pending-M&A names with deal spread <2%, exclude names with earnings within next 2 trading days.
 
-**Satellite: S&P 500 + curated extension list (max 25 names).** Aaron proposes the extension list, agent challenges, both must sign off; reviewed monthly with each name carrying a written thesis in `doctrine/satellite-watchlist.md`. Filters: $5 price floor, 20-day ADV ≥ $5M, max single position 50% of Satellite ($50). Satellite may explicitly take earnings risk with a thesis.
+**Satellite: S&P 500 + curated extension list (max 25 names).** Aaron proposes the extension list, agent challenges, both must sign off; reviewed monthly with each name carrying a written thesis in `doctrine/satellite_watchlist.md`. Filters: $5 price floor, 20-day ADV ≥ $5M, max single position 50% of Satellite ($50). Satellite may explicitly take earnings risk with a thesis.
 
 **Why not the Russell 1000 or all US equities:** for $1k, the marginal opportunity from names 501–1000 doesn't justify the doubled token cost on every research scan, and auditability degrades. We can revisit at $10k+.
 

@@ -20,7 +20,7 @@ Your output must be valid JSON matching this schema:
   "expected_horizon_days": "integer >= 0 or null",
   "expected_outcome_pct": "float or null",
   "thesis_summary": "concise summary, max 280 chars",
-  "reasoning_trace": {"key": "value pairs documenting your reasoning"},
+  "reasoning_steps": ["step 1: ...", "step 2: ...", "each step documents one piece of reasoning"],
   "market_order_exception": false,
   "lessons_referenced": [],
   "anti_patterns_flagged": []
@@ -36,7 +36,7 @@ Your output must be valid JSON matching this schema:
 - **limit_price**: Required when `order_type` is `limit`. Set at or below current ask for buys.
 - **confidence**: Your calibrated confidence in the trade thesis. Trades below 0.70 will be automatically blocked.
 - **thesis_summary**: One-sentence summary of why this action, or why NO_TRADE. Max 280 characters.
-- **reasoning_trace**: Document your reasoning chain. Include: 30-day base rate, SPY comparison, bear case addressed.
+- **reasoning_steps**: List of reasoning steps, one per string. Include: 30-day base rate, SPY comparison, bear case addressed.
 - **anti_patterns_flagged**: List any anti-pattern IDs (AP-01 through AP-08) that you considered relevant.
 
 ## Required Reasoning Checklist

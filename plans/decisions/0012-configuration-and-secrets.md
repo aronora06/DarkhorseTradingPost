@@ -154,7 +154,7 @@ routine_cost_cap_usd = 0.50
 - **`hydra` for config composition.** Powerful for ML experiments; overkill for our shape. Reject.
 - **`dynaconf`.** Capable but pydantic-settings is sufficient and tightly integrated with pydantic v2 (we use that everywhere else).
 - **Vault / Doppler / 1Password CLI for secrets.** Real value at multi-host scale; one VPS doesn't justify the integration cost. Defer.
-- **AWS Secrets Manager / Hetzner equivalent.** Same logic. We can revisit if the project grows operationally.
+- **AWS Secrets Manager / Linode equivalent.** Same logic. We can revisit if the project grows operationally.
 
 ## Falsification criterion
 

@@ -121,7 +121,7 @@ If/when SQLite stops cutting it (multi-GB journal, complex analytic queries), up
 
 ### Provider
 
-> **Hosting decision now codified in [ADR-0005](decisions/0005-hosting.md): Hetzner Cloud CX22 in Ashburn US (~$4.20/mo, 2 vCPU / 4 GB RAM / 40 GB NVMe / 20 TB bandwidth) — supersedes the Linode recommendation below.** The Linode analysis is preserved here for context and as the documented fallback. See `RESEARCH/architecture/hosting_comparison.md` for the full comparison.
+> **Hosting decision now codified in [ADR-0005](decisions/0005-hosting.md): Linode Nanode 1GB in Newark US ($5/mo, 1 vCPU / 1 GB RAM / 25 GB SSD / 1 TB bandwidth).** Aaron chose Linode for familiarity and US billing. Hetzner CX22 remains the documented fallback. See `RESEARCH/architecture/hosting_comparison.md` for the full comparison.
 
 **Original recommendation: Linode (Akamai) Nanode 1GB — $5/month** in a US region (Newark or Dallas, depending on Alpaca's data center latency — verify in Phase 7).
 
@@ -129,7 +129,7 @@ Specs: 1 vCPU, 1GB RAM, 25GB SSD, 1TB egress. Sufficient for the agent + FastAPI
 
 ### Alternatives considered
 
-- **Hetzner CX22** (~€4/mo, 4GB RAM, 2 vCPU) — now selected in Ashburn US by ADR-0005. The earlier EU-latency concern no longer applies to the chosen region.
+- **Hetzner CX22** (~€4/mo, 4GB RAM, 2 vCPU) — previously recommended in ADR-0005 (since superseded by Linode). Remains the documented fallback.
 - **Vultr Regular Cloud** ($5/mo, 1GB) — comparable to Linode.
 - **AWS Lightsail** ($5/mo) — vendor lock-in to AWS ecosystem, and the savings aren't worth it for a single instance.
 - **Fly.io** — interesting for stateless apps; our app has state; not the right fit.
@@ -181,17 +181,17 @@ Two paths considered:
 
 ## Cost Estimate
 
-(Updated post ADR-0005 to use the Hetzner Ashburn pricing. Linode pricing preserved below for fallback reference.)
+(Updated post ADR-0005 revision to use the Linode pricing. Hetzner pricing preserved for fallback reference.)
 
 | Item | Monthly |
 |---|---|
-| Hetzner Cloud CX22 Ashburn (per ADR-0005) | ~$4.20 |
-| _Fallback: Linode Nanode 1GB_ | _$5_ |
+| Linode Nanode 1GB Newark (per ADR-0005) | $5.00 |
+| _Fallback: Hetzner Cloud CX22 Ashburn_ | _~$4.20_ |
 | Backblaze B2 backups | <$0.10 |
 | Tailscale (free tier) | $0 |
 | Cloudflare Tunnel + Access (free tier) | $0 |
 | Domain name (optional, for tailnet hostname) | ~$1/mo amortized |
-| **Total infra (Hetzner)** | **~$5.30/month** |
+| **Total infra (Linode)** | **~$6.10/month** |
 
 Plus the API costs in `riskMitigation.md` §2 (~$3/mo target). **Total operational cost: ~$8.30/month**, or ~0.83% of NAV/yr at $1k starting capital.
 
@@ -223,7 +223,7 @@ A future-Aaron improvement is GitHub Actions auto-deploy via Tailscale, but that
 
 ## Open Decisions for Phase 7
 
-- Hetzner Ashburn latency check against Alpaca's API
+- Linode Newark latency check against Alpaca's API
 - Whether to use Caddy (simpler HTTPS) or nginx (more control)
 - Plotly vs Chart.js (start with Plotly, fall back if perf issue)
 - Cloudflare Access enable/skip at launch

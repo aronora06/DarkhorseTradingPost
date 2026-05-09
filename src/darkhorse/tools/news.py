@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from datetime import datetime
+from email.utils import parsedate_to_datetime
 from typing import Any
 
 import httpx
@@ -74,15 +75,33 @@ def _search_sonar(
     content = str(data["choices"][0]["message"]["content"])
     citations = data.get("citations") or []
     return tuple(
-        NewsArticle(
-            title=str(citation.get("title") or payload.query),
-            url=str(citation["url"]),
-            source=str(citation.get("source") or "Perplexity Sonar"),
-            published_at=_optional_datetime(citation.get("published_at")),
+        _sonar_citation_to_article(citation, content, payload)
+        for citation in citations[: payload.max_results]
+    )
+
+
+def _sonar_citation_to_article(
+    citation: Any,
+    content: str,
+    payload: NewsSearchInput,
+) -> NewsArticle:
+    """Handle both string-URL and dict citations from Sonar."""
+    if isinstance(citation, str):
+        return NewsArticle(
+            title=payload.query,
+            url=citation,
+            source="Perplexity Sonar",
+            published_at=None,
             summary=content,
             cited_symbols=payload.symbols,
         )
-        for citation in citations[: payload.max_results]
+    return NewsArticle(
+        title=str(citation.get("title") or payload.query),
+        url=str(citation["url"]),
+        source=str(citation.get("source") or "Perplexity Sonar"),
+        published_at=_optional_datetime(citation.get("published_at")),
+        summary=content,
+        cited_symbols=payload.symbols,
     )
 
 
@@ -160,7 +179,15 @@ def _optional_datetime(value: object) -> datetime | None:
         return None
     if isinstance(value, datetime):
         return value
-    return datetime.fromisoformat(str(value).replace("Z", "+00:00"))
+    raw = str(value)
+    try:
+        return datetime.fromisoformat(raw.replace("Z", "+00:00"))
+    except ValueError:
+        pass
+    try:
+        return parsedate_to_datetime(raw)
+    except (ValueError, TypeError):
+        return None
 
 
 class _ClientContext:

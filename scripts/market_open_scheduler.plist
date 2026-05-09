@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+  "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  macOS launchd agent — fires market_open at 9:35 AM ET on weekdays.
+
+  Install:
+    cp scripts/market_open_scheduler.plist ~/Library/LaunchAgents/com.darkhorse.market-open.plist
+    launchctl load ~/Library/LaunchAgents/com.darkhorse.market-open.plist
+
+  Uninstall:
+    launchctl unload ~/Library/LaunchAgents/com.darkhorse.market-open.plist
+    rm ~/Library/LaunchAgents/com.darkhorse.market-open.plist
+
+  Verify loaded:
+    launchctl list | grep darkhorse
+
+  View logs:
+    tail -f /tmp/darkhorse-market-open.log
+    tail -f /tmp/darkhorse-market-open-err.log
+
+  Notes:
+    - launchd fires at 9:35 AM in the *local* timezone of the Mac.
+      If your Mac is set to US Eastern, this fires at 9:35 AM ET.
+      If your Mac is in another timezone, adjust the Hour/Minute accordingly.
+    - launchd has no native weekday filter. The wrapper script checks
+      the day of week and exits early on weekends.
+    - If the Mac is asleep at 9:35 AM, launchd fires the job on wake
+      (within the same calendar day) thanks to the default keep-alive
+      behavior of StartCalendarInterval.
+-->
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.darkhorse.market-open</string>
+
+  <key>ProgramArguments</key>
+  <array>
+    <string>/bin/bash</string>
+    <string>-c</string>
+    <string>
+      cd /Users/aaronparker/Projects/DarkhorseTradingOutpost \
+        &amp;&amp; ./scripts/run_market_open.sh
+    </string>
+  </array>
+
+  <key>StartCalendarInterval</key>
+  <dict>
+    <key>Hour</key>
+    <integer>9</integer>
+    <key>Minute</key>
+    <integer>35</integer>
+  </dict>
+
+  <key>StandardOutPath</key>
+  <string>/tmp/darkhorse-market-open.log</string>
+
+  <key>StandardErrorPath</key>
+  <string>/tmp/darkhorse-market-open-err.log</string>
+
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>PATH</key>
+    <string>/usr/local/bin:/usr/bin:/bin:/opt/homebrew/bin</string>
+  </dict>
+</dict>
+</plist>

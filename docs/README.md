@@ -16,7 +16,7 @@ If you're trying to understand "what we decided and why," start in `plans/`. If 
 | File | Purpose |
 |---|---|
 | [`architecture.md`](architecture.md) | The master architectural reference for the codebase: layers, data flow, deployment topology, extensibility hooks, ADR index |
-| [`runbook.md`](runbook.md) | Local setup, quality gates, pre-commit, CI, and current Phase 3 runtime-operation limits |
+| [`runbook.md`](runbook.md) | Local setup, quality gates, pre-commit, CI, cassette testing, API smoke tests, and current Phase 4a runtime status |
 
 **Related (outside `docs/`):** [`doctrine/`](../doctrine/) — trading constitution Markdown (**Phase 1 approved 2026-05-09**); [`tests/specs/`](../tests/specs/) — Markdown specs implemented by Phase 3 tests (**same sign-off**).
 

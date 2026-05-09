@@ -121,6 +121,7 @@ class CassetteTransport(httpx.BaseTransport):
             raise CassetteMissError("Record mode requires a live_transport but none was provided.")
 
         response = self._live.handle_request(request)
+        response.read()
         resp_body: dict[str, Any] = json.loads(
             response.content.decode("utf-8") if response.content else "{}"
         )

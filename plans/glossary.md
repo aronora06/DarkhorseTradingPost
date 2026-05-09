@@ -78,7 +78,7 @@ Vocabulary used in doctrine, prompts, code, and discussion. The point of this fi
 
 **Tool contract** — the typed signature + docstring of a tool. The agent reads contracts; the harness enforces them.
 
-**Structured output** — Anthropic beta feature that constrains the model to a JSON schema at decode time. Used for the risk-manager's decision JSON.
+**Structured output** — Anthropic feature (GA as of 2026) that constrains the model to a JSON schema at decode time. Used for the risk-manager's decision JSON. No beta header required.
 
 **Prompt cache** — Anthropic feature that lets us pay 0.10x for repeated stable context. Doctrine, lessons, anti-patterns, tool contracts go in the cache; market state and news do not.
 

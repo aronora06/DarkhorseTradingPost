@@ -60,7 +60,8 @@ class DecisionJournalRecordV1(BaseModel):
     expected_horizon_days: int | None = Field(default=None, ge=0)
     expected_outcome_pct: float | None = None
     thesis_summary: str | None = None
-    reasoning_trace: dict[str, Any] = Field(default_factory=dict)
+    reasoning_steps: list[str] = Field(default_factory=list)
+    research_context: str | None = None
     tools_used: tuple[ToolUseRecordV1, ...] = Field(default_factory=tuple)
     intent_fingerprint: str = Field(description="Idempotency / dedupe key for this intent")
     validate_order_passed: bool

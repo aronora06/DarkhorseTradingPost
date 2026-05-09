@@ -2,13 +2,16 @@
 
 This is the master executable to-do list. Read [`initialPlan.md`](./initialPlan.md) for architectural rationale and [`riskMitigation.md`](./riskMitigation.md) for the cost/risk playbook. This file is what we *do*; those files are what we *decided*.
 
-## Operating Principle: Real-Money From Day 1 of Trading
+## Operating Principle: Paper Proves the System, Then Real Money at Micro-Size
 
-Phases 0–3 are pre-trading and pre-cost: no agent runs, no tokens burn, no subscriptions accruing. From Phase 4 onward, the agent operates against **real money** in the live Alpaca account. We do not run an extended paper-only phase — every dollar of operational cost should produce real signal.
+*(Supersedes the original "real money from day 1" framing — Aaron deliberately adopted paper-first sequencing; see `suggestedNextSteps.md` §1.)*
 
-What we do instead:
-- **Capital ramps within the live account** from $50 → $900 Core, gated by observed behavior (Phase 4 → Phase 8).
-- **A paper-shadow account runs concurrently** throughout, using the same prompts and routines, as a free divergence detector.
+Phases 0–3 are pre-trading and pre-cost: no agent runs, no tokens burn, no subscriptions accruing. **Phase 4a runs against the Alpaca paper account** to prove the full pipeline (harness, journal, audit, Discord, cost tracking) before any real money touches it. Phase 4b activates live trading at micro-size once paper trading is proven clean and the Alpaca live account is approved/funded.
+
+How we manage risk across live trading:
+- **Paper trading comes first** — minimum 5 clean trading days on paper before live activation (Phase 4a exit criteria).
+- **Capital ramps within the live account** from $50 → $900 Core, gated by observed behavior (Phase 4b → Phase 8).
+- **A paper-shadow account runs concurrently** throughout live trading, using the same prompts and routines, as a free divergence detector.
 - **Architectural changes (new prompt, new model, new tool) run in paper-shadow for ≥ 2 weeks** before being merged into the live path. The live system continues unchanged during validation windows.
 
 ## How to Use This Document
@@ -138,7 +141,7 @@ What we do instead:
 
 ## Phase 3 — Foundations Build + Hosting
 
-**Goal:** Implement the load-bearing risk modules and stand up the production environment. **No agent code, no LLM calls.** This phase ends with everything in place to run the agent — but the agent has not yet run.
+**Goal:** Implement the load-bearing risk modules and stand up the production environment. This phase ends with everything in place to run the agent — but the agent has not yet run. *(The original "no agent code, no LLM calls" constraint applied to Phase 3 proper; the Anthropic SDK dependency and harness scaffolding were added at the Phase 3/4a boundary.)*
 
 ### 3.1 Repo scaffolding
 
@@ -185,7 +188,7 @@ What we do instead:
 
 ### 3.5 Hosting & infrastructure
 
-- [ ] Hetzner Cloud CX22 in Ashburn US provisioned (per ADR-0005), Ubuntu 24.04 LTS
+- [ ] Linode Nanode 1GB in Newark US provisioned (per ADR-0005), Ubuntu 24.04 LTS
 - [ ] Tailscale installed; SSH disabled on public interfaces
 - [ ] systemd skeleton for the scheduler, the FastAPI app, the watchdogs
 - [ ] nginx/Caddy reverse proxy configured
@@ -211,10 +214,10 @@ What we do instead:
 - [x] (2026-05-09) `prompts/system_core.md` — full doctrine injection, decision JSON schema, 30-day base rate, NO_TRADE default, hard boundaries, Phase 4 constraints, anti-pattern catalog reference.
 - [x] (2026-05-09) `prompts/researcher.md` — tool usage protocol, output structure (account/market/durable/headlines/gaps/tools-used), data quality requirements.
 - [x] (2026-05-09) `prompts/risk_manager.md` — decision JSON schema with field rules, confidence calibration (0.70), reasoning checklist, Python-validates hard boundary.
-- [x] (2026-05-09) `src/darkhorse/routines/market_open.py` — end-to-end pipeline: compose → harness → confidence gate → validate_order → submit_order (Alpaca paper) → journal + audit + Discord notify. 159 tests, 88.85% coverage.
+- [x] (2026-05-09) `src/darkhorse/routines/market_open.py` — end-to-end pipeline: compose → harness → confidence gate → validate_order → submit_order (Alpaca paper) → journal + audit + Discord notify. 166 tests, 89.49% coverage.
 - [x] (2026-05-09) **$50 deployment cap wired into `validate_order`** via `R-V01-PHASE-CAP` and `phase_core_deploy_cap_usd` in Settings.
-- [ ] Record initial cassettes from a live harness run (`uv run python -m darkhorse.testing.record market_open_initial`)
-- [ ] First successful end-to-end paper run: agent fetches state, decides, validates, places paper order (or NO_TRADE) ≤ $50, journals
+- [x] (2026-05-09) Record initial cassettes from a live harness run — 5 Anthropic interactions (4 researcher + 1 risk-manager) captured to `tests/cassettes/market_open_initial.json`. Record CLI supports `--routine market_open` for full-pipeline cassettes.
+- [x] (2026-05-09) First successful end-to-end paper run: agent fetches state, decides NO_TRADE (weekend + pre-CPI), journals with full research context (11K chars), 11 tool uses with SHA-256 result hashes, cost telemetry ($0.69/run), Discord notification sent.
 - [ ] Local scheduler (cron/launchd on Mac) fires `market_open.py` at 9:35 AM ET weekdays in paper mode
 - [ ] Run for **5 trading days minimum** on paper. Aaron reads every journal entry.
 - [ ] Daily Discord recap includes: paper decision, cost, any errors
@@ -250,7 +253,7 @@ What we do instead:
 
 ### 5.1 Multi-agent flow
 
-- [ ] `prompts/researcher.md`, `bull_analyst.md`, `bear_analyst.md`, `risk_manager.md` written
+- [ ] `prompts/researcher.md`, `bull_analyst.md`, `bear_analyst.md`, `risk_manager.md` wired into multi-agent debate harness *(prompt files exist from Phase 4a; this item means integrating them into the parallel bull/bear debate flow)*
 - [ ] Multi-agent orchestration in `src/darkhorse/harness.py` — researcher → parallel bull/bear → risk-manager
 - [ ] Risk-manager runs Opus 4.7; sub-agents run Sonnet 4.6
 - [ ] Anthropic 1-hour prompt cache enabled on doctrine + journal context

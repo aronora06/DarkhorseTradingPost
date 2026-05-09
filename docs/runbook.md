@@ -96,27 +96,32 @@ Tests that mutate environment variables or settings files should call `clear_set
 The cassette/replay system records Anthropic API interactions for deterministic CI replay:
 
 ```bash
-# Record new cassettes (requires ANTHROPIC_API_KEY in .env):
+# Record a minimal API probe cassette (requires ANTHROPIC_API_KEY in .env):
 uv run python -m darkhorse.testing.record <cassette_name>
+
+# Record a full market_open routine cassette (captures all Anthropic calls):
+uv run python -m darkhorse.testing.record <cassette_name> --routine market_open
 
 # Run tests using recorded cassettes (no API key needed):
 uv run pytest tests/unit/test_cassette.py -v
 ```
 
-Cassettes live in `tests/cassettes/`. The `CassetteTransport` (httpx-based) supports both `record` and `replay` modes. See `src/darkhorse/testing/cassette.py`.
+Cassettes live in `tests/cassettes/`. The `CassetteTransport` (httpx-based) supports both `record` and `replay` modes. See `src/darkhorse/testing/cassette.py`. The `--routine market_open` mode runs the full end-to-end pipeline and captures all researcher + risk-manager Anthropic round-trips; broker/data/news calls go live on their own clients.
 
 ## Current Runtime Status
 
-**Phase 3.1-3.4 substantially complete (2026-05-09).** Implemented:
-- Deterministic risk modules (`validate_order`, sizing, drawdown, kill_switch, wind_down) with 96% coverage.
-- Core utilities (config, idempotency, journal, audit, calibration, notify, schemas).
-- Deterministic tool wrappers (Alpaca, assets, data, news) with strict contracts.
-- Routine composition with full risk state: drawdown/halt flags, wind-down, daily loss halt, trades-today, journal/audit envelopes.
-- Cassette/replay scaffolding for testing Anthropic interactions.
+**Phase 4a in progress (2026-05-09).** The production Anthropic harness, end-to-end paper trading pipeline, and first successful paper runs are complete. Working toward 5 clean trading days.
+
+- **Production harness** (`src/darkhorse/harness.py`): researcher (Sonnet 4.6) with native tool loop (max 10 iterations) + risk-manager (Opus 4.7) with structured JSON output. Prompt caching (1h TTL), per-call cost telemetry with SHA-256 result hashes, tenacity retry, structlog.
+- **End-to-end `market_open` routine** (`src/darkhorse/routines/market_open.py`): compose risk state → researcher → risk-manager → confidence gate (0.70) → `validate_order` → `submit_order` to Alpaca paper → journal + audit + Discord notify.
+- **Journal records now include:** full researcher narrative (`research_context`, ~11K chars), SHA-256 tool result hashes, per-decision LLM cost breakdown (input/cached/output tokens + USD total), model assignments, reasoning steps, anti-pattern flags.
+- **First paper runs completed (2026-05-09):** 4 runs total (2 composition-blocked, 2 full harness runs). Both harness runs returned NO_TRADE with detailed reasoning (weekend + pre-CPI uncertainty). Cost: $0.46 and $0.69 per run.
+- **Cassette recorded:** `tests/cassettes/market_open_initial.json` — 5 Anthropic interactions (4 researcher + 1 risk-manager), 31KB. Record CLI supports `--routine market_open` for full-pipeline captures.
+- Deterministic risk modules (`validate_order`, sizing, drawdown, kill_switch, wind_down) with 96.32% coverage.
 - Phase 4 $50 Core deployment cap wired end-to-end.
-- 119 tests, 90% package coverage, 96% risk coverage.
-- All API keys verified (smoke tests).
+- **166 tests, 89.49% package coverage, 96.32% risk coverage.**
+- All API keys verified (smoke tests). Alpaca paper account ACTIVE with $1,000 paper equity.
 
-**Next:** Build the production Anthropic harness and begin paper trading (Phase 4a). Paper trading proceeds immediately using the Alpaca paper account. Live trading (Phase 4b) activates once the Alpaca live account is approved and paper trading has proven clean.
+**Next:** Set up local scheduler (launchd) for 9:35 AM ET weekday runs, accumulate 5 clean trading days, daily Discord recap review. See `suggestedNextSteps.md` §4.2.
 
-**Not yet built:** Production Anthropic harness, real LLM tool loop, paper/live order execution from a routine, scheduler, FastAPI dashboard, Hetzner deployment.
+**Not yet built:** Local scheduler activation, SnapTrade wrapper, FastAPI dashboard, Linode deployment.

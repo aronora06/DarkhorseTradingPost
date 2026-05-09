@@ -111,16 +111,16 @@ def _no_trade_decision() -> str:
     return json.dumps(
         {
             "action": "NO_TRADE",
-            "ticker": None,
-            "qty": None,
-            "order_type": None,
-            "limit_price": None,
+            "ticker": "",
+            "qty": 0,
+            "order_type": "none",
+            "limit_price": "",
             "time_in_force": "day",
             "confidence": 0.3,
-            "expected_horizon_days": None,
-            "expected_outcome_pct": None,
+            "expected_horizon_days": 0,
+            "expected_outcome_pct": 0.0,
             "thesis_summary": "Insufficient evidence.",
-            "reasoning_trace": {},
+            "reasoning_steps": [],
             "market_order_exception": False,
             "lessons_referenced": [],
             "anti_patterns_flagged": [],
@@ -141,7 +141,7 @@ def _buy_decision(*, confidence: float = 0.85) -> str:
             "expected_horizon_days": 30,
             "expected_outcome_pct": 5.0,
             "thesis_summary": "Strong momentum.",
-            "reasoning_trace": {"base_rate": "bullish"},
+            "reasoning_steps": ["base_rate: bullish"],
             "market_order_exception": False,
             "lessons_referenced": [],
             "anti_patterns_flagged": [],
@@ -510,3 +510,168 @@ def test_journal_and_audit_writes_files(tmp_path: Path) -> None:
 
     assert any((tmp_path / "journal").glob("*.jsonl"))
     assert any((tmp_path / "audit").glob("*.jsonl"))
+
+
+# ---------------------------------------------------------------------------
+# research_context persistence
+# ---------------------------------------------------------------------------
+
+
+def test_journal_record_includes_research_context(tmp_path: Path) -> None:
+    """research_context is populated from HarnessResult.research_text."""
+    from darkhorse.harness import CallCost, HarnessResult, LLMDecisionOutput
+    from darkhorse.risk import ValidationContext
+    from darkhorse.routines.composition import RoutineCompositionSnapshot
+
+    settings = _settings(tmp_path)
+    decision = LLMDecisionOutput.model_validate_json(_no_trade_decision())
+    ctx = ValidationContext(
+        core_nav_usd=Decimal("900"),
+        satellite_nav_usd=Decimal("100"),
+        account_equity_usd=Decimal("1000"),
+        core_allowed_symbols=frozenset(),
+        satellite_allowed_symbols=frozenset(),
+        pdt_restricted=True,
+        day_trades_in_rolling_5_sessions=0,
+        order_would_be_day_trade=False,
+    )
+    snapshot = RoutineCompositionSnapshot(
+        routine="market_open",
+        sleeve="core",
+        environment=BrokerEnvironment.PAPER,
+        dry_run=True,
+        kill_switch_trading_allowed=True,
+        kill_switch_reasons=(),
+        account_status="ACTIVE",
+        account_trading_blocked=False,
+        positions_count=0,
+        allowed_symbol_count=0,
+        core_drawdown_halt=False,
+        core_uncle_triggered=False,
+        satellite_uncle_triggered=False,
+        core_soft_wind_down_spy_only=False,
+        core_daily_loss_halt=False,
+        satellite_daily_loss_halt=False,
+        validation_context=ctx,
+    )
+
+    harness_result = HarnessResult(
+        decision=decision,
+        research_text="Market is flat today. SPY down 0.2%. No catalysts.",
+        total_cost=CallCost(),
+        researcher_iterations=1,
+        model_assignments={"researcher": "sonnet", "risk_manager": "opus"},
+        tools_used=[],
+    )
+    record = _build_journal_record(harness_result, snapshot, settings)
+    assert record.research_context == "Market is flat today. SPY down 0.2%. No catalysts."
+
+
+def test_journal_record_research_context_none_when_empty(tmp_path: Path) -> None:
+    """research_context is None when research_text is empty."""
+    from darkhorse.harness import CallCost, HarnessResult, LLMDecisionOutput
+    from darkhorse.risk import ValidationContext
+    from darkhorse.routines.composition import RoutineCompositionSnapshot
+
+    settings = _settings(tmp_path)
+    decision = LLMDecisionOutput.model_validate_json(_no_trade_decision())
+    ctx = ValidationContext(
+        core_nav_usd=Decimal("900"),
+        satellite_nav_usd=Decimal("100"),
+        account_equity_usd=Decimal("1000"),
+        core_allowed_symbols=frozenset(),
+        satellite_allowed_symbols=frozenset(),
+        pdt_restricted=True,
+        day_trades_in_rolling_5_sessions=0,
+        order_would_be_day_trade=False,
+    )
+    snapshot = RoutineCompositionSnapshot(
+        routine="market_open",
+        sleeve="core",
+        environment=BrokerEnvironment.PAPER,
+        dry_run=True,
+        kill_switch_trading_allowed=True,
+        kill_switch_reasons=(),
+        account_status="ACTIVE",
+        account_trading_blocked=False,
+        positions_count=0,
+        allowed_symbol_count=0,
+        core_drawdown_halt=False,
+        core_uncle_triggered=False,
+        satellite_uncle_triggered=False,
+        core_soft_wind_down_spy_only=False,
+        core_daily_loss_halt=False,
+        satellite_daily_loss_halt=False,
+        validation_context=ctx,
+    )
+
+    harness_result = HarnessResult(
+        decision=decision,
+        research_text="",
+        total_cost=CallCost(),
+        researcher_iterations=1,
+        model_assignments={"researcher": "sonnet", "risk_manager": "opus"},
+        tools_used=[],
+    )
+    record = _build_journal_record(harness_result, snapshot, settings)
+    assert record.research_context is None
+
+
+# ---------------------------------------------------------------------------
+# result_hash flows through to journal record
+# ---------------------------------------------------------------------------
+
+
+def test_journal_record_includes_tool_result_hashes(tmp_path: Path) -> None:
+    """result_hash from harness tools_used flows into ToolUseRecordV1."""
+    from darkhorse.harness import CallCost, HarnessResult, LLMDecisionOutput
+    from darkhorse.risk import ValidationContext
+    from darkhorse.routines.composition import RoutineCompositionSnapshot
+
+    settings = _settings(tmp_path)
+    decision = LLMDecisionOutput.model_validate_json(_no_trade_decision())
+    ctx = ValidationContext(
+        core_nav_usd=Decimal("900"),
+        satellite_nav_usd=Decimal("100"),
+        account_equity_usd=Decimal("1000"),
+        core_allowed_symbols=frozenset(),
+        satellite_allowed_symbols=frozenset(),
+        pdt_restricted=True,
+        day_trades_in_rolling_5_sessions=0,
+        order_would_be_day_trade=False,
+    )
+    snapshot = RoutineCompositionSnapshot(
+        routine="market_open",
+        sleeve="core",
+        environment=BrokerEnvironment.PAPER,
+        dry_run=True,
+        kill_switch_trading_allowed=True,
+        kill_switch_reasons=(),
+        account_status="ACTIVE",
+        account_trading_blocked=False,
+        positions_count=0,
+        allowed_symbol_count=0,
+        core_drawdown_halt=False,
+        core_uncle_triggered=False,
+        satellite_uncle_triggered=False,
+        core_soft_wind_down_spy_only=False,
+        core_daily_loss_halt=False,
+        satellite_daily_loss_halt=False,
+        validation_context=ctx,
+    )
+
+    harness_result = HarnessResult(
+        decision=decision,
+        research_text="Research done.",
+        total_cost=CallCost(),
+        researcher_iterations=1,
+        model_assignments={"researcher": "sonnet", "risk_manager": "opus"},
+        tools_used=[
+            {"tool": "data.quote", "args": {"symbol": "AAPL"}, "result_hash": "abc123def456789a"},
+            {"tool": "news.search", "args": {"query": "AAPL"}, "result_hash": "fedcba9876543210"},
+        ],
+    )
+    record = _build_journal_record(harness_result, snapshot, settings)
+    assert len(record.tools_used) == 2
+    assert record.tools_used[0].result_hash == "abc123def456789a"
+    assert record.tools_used[1].result_hash == "fedcba9876543210"

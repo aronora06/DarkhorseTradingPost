@@ -28,7 +28,7 @@ This is the consolidated, end-to-end guide for setting up every external account
 
 Phase 3 is complete. The canonical secret-handling flow per ADR-0012:
 - **Dev:** `.env` at project root, gitignored, loaded by `pydantic-settings`. All keys are populated (except Alpaca live which has placeholder values pending account approval).
-- **Production:** `/etc/darkhorse/.env`, mode 600, root-owned, on the Hetzner host (Phase 3.5).
+- **Production:** `/etc/darkhorse/.env`, mode 600, root-owned, on the Linode host (Phase 3.5).
 - **Backup:** Keep a copy in your password manager for disaster recovery.
 
 **What you must never do:**
@@ -54,7 +54,7 @@ Status as of **2026-05-09**. All API connections verified via `tests/smoke/test_
 | 8 | Tavily | ✅ done (2026-05-09) | minutes | $0 (free tier 1k/mo) | `TAVILY_API_KEY` |
 | 9 | Finnhub | ✅ done (2026-05-09) | minutes | $0 (free tier) | `FINNHUB_API_KEY` |
 | **Phase 3.5+ accounts (start when you provision the server)** | | | | | |
-| 10 | Hetzner Cloud | [ ] pending | minutes (instant) | ~$4.20/mo | _server-side_ |
+| 10 | Linode (Akamai) | [ ] pending | minutes (instant) | $5.00/mo | _server-side_ |
 | 11 | Tailscale | [ ] pending | minutes | $0 (free tier covers 3 users / 100 devices) | _server-side_ |
 | 12 | Backblaze B2 | [ ] pending | minutes | <$0.10/mo | `B2_KEY_ID`, `B2_APPLICATION_KEY` |
 | 13 | Cloudflare (DNS / Workers / Access) | [ ] pending | minutes | $0 (free tiers) | _account-level, no env_ |
@@ -479,37 +479,36 @@ You should see JSON with `c` (current price), `h` (high), `l` (low), `o` (open),
 
 These are needed for Phase 3.5 (hosting) and beyond. **Don't set them up yet** — wait until you're actively provisioning the production environment, so the credentials are fresh.
 
-## 10. Hetzner Cloud (per ADR-0005)
+## 10. Linode (Akamai) (per ADR-0005)
 
-**What it's for:** The VPS that hosts the agent, dashboard, scheduler, and SQLite mirror. Hetzner CX22 in Ashburn US.
+**What it's for:** The VPS that hosts the agent, dashboard, scheduler, and SQLite mirror. Linode Nanode 1GB in Newark US.
 
 **Required for:** Phase 3.5.
 
 **Lead time:** Minutes (instant provisioning).
 
-**Cost:** ~$4.20/month (€3.79).
+**Cost:** $5.00/month.
 
 ### Steps (when you're ready)
 
-- [ ] Go to https://www.hetzner.com/cloud and sign up.
+- [ ] Go to https://www.linode.com/ and sign up (or sign in if you have an existing Akamai/Linode account).
 - [ ] Add a payment method.
-- [ ] Create a project named "darkhorse".
-- [ ] Within the project: **Add Server**:
-  - Location: **Ashburn (ash)**.
+- [ ] **Create Linode**:
   - Image: **Ubuntu 24.04 LTS**.
-  - Type: **CX22** (2 vCPU shared, 4 GB RAM, 40 GB NVMe, 20 TB bandwidth).
-  - Networking: enable IPv4 (default is dual-stack); confirm IPv4 is included (it is on CX22 by default).
-  - SSH Key: upload your SSH public key from your dev machine (`cat ~/.ssh/id_ed25519.pub` if you have one, or generate with `ssh-keygen -t ed25519 -C "darkhorse-deploy"`).
-  - Name: `darkhorse-prod`.
-- [ ] Click **Create & Buy now**. Server provisions in ~30 seconds.
-- [ ] Note the public IPv4 address.
+  - Region: **Newark, NJ (us-east)**.
+  - Linode Plan: **Nanode 1GB** ($5/mo — 1 vCPU, 1 GB RAM, 25 GB SSD, 1 TB bandwidth).
+  - Linode Label: `darkhorse-prod`.
+  - Root Password: set a strong password (you'll primarily use SSH keys, but Linode requires a root password).
+  - SSH Key: add your SSH public key from your dev machine (`cat ~/.ssh/id_ed25519.pub` if you have one, or generate with `ssh-keygen -t ed25519 -C "darkhorse-deploy"`).
+- [ ] Click **Create Linode**. Server provisions in ~60 seconds.
+- [ ] Note the public IPv4 address from the Linode dashboard.
 
 ### Info to capture
 
 | Variable | Source | Where to store |
 |---|---|---|
-| Hetzner account email + 2FA | Hetzner login | Password manager |
-| `darkhorse-prod` public IPv4 | Hetzner Cloud Console | `setup.md` (in `docs/`, when you write it) |
+| Linode account email + 2FA | Linode login | Password manager |
+| `darkhorse-prod` public IPv4 | Linode Cloud Manager | `setup.md` (in `docs/`, when you write it) |
 | SSH private key | Your dev machine | Local `~/.ssh/`, also backed up to encrypted password manager note |
 
 ### Verification
@@ -523,7 +522,7 @@ Should print uptime info. If not, verify SSH key was correctly uploaded.
 ### Gotchas
 
 - **Disable public SSH after Tailscale is up.** First SSH is over public internet to install Tailscale; thereafter, only Tailscale-routed SSH should work. Edit `/etc/ssh/sshd_config` to bind SSH to the Tailscale interface only.
-- Hetzner bills monthly in EUR; auto-converted to your card's currency.
+- If 1 GB RAM proves tight for multi-agent debate (Phase 5), Linode resize to 2GB ($12/mo) is a one-click operation with a brief reboot.
 
 ---
 
@@ -543,13 +542,13 @@ Should print uptime info. If not, verify SSH key was correctly uploaded.
 - [ ] Choose **Personal** plan.
 - [ ] On your dev Mac: install Tailscale (https://tailscale.com/download), sign in.
 - [ ] On your phone: install the Tailscale app, sign in to the same account.
-- [ ] On the Hetzner VPS (after first SSH):
+- [ ] On the Linode VPS (after first SSH):
   ```bash
   curl -fsSL https://tailscale.com/install.sh | sh
   sudo tailscale up
   ```
   Authenticate via the URL it prints (open in browser, sign in to Tailscale).
-- [ ] Note the tailnet hostname Hetzner picks (e.g., `darkhorse-prod`).
+- [ ] Note the tailnet hostname Tailscale assigns (e.g., `darkhorse-prod`).
 - [ ] In the Tailscale Admin Console: **Machines** → confirm the VPS appears with a tailnet IP.
 - [ ] (Recommended) Enable **MagicDNS**: Admin Console → DNS → enable MagicDNS. Lets you SSH as `ssh root@darkhorse-prod` instead of typing IPs.
 
@@ -607,7 +606,7 @@ Works without specifying IPv4 — confirms Tailscale + MagicDNS.
   - `B2_KEY_ID=...`
   - `B2_APPLICATION_KEY=...`
   - `B2_BUCKET_NAME=darkhorse-backups`
-- [ ] Generate an `age` keypair on the Hetzner host: `age-keygen -o /etc/darkhorse/backup_age.key`. Note the public key — that's what backups encrypt to. The private key never leaves the server.
+- [ ] Generate an `age` keypair on the Linode host: `age-keygen -o /etc/darkhorse/backup_age.key`. Note the public key — that's what backups encrypt to. The private key never leaves the server.
 - [ ] **Back up the `age` private key to your password manager.** If the VPS is destroyed, you need this key to decrypt backups.
 
 ### Info to capture
@@ -657,7 +656,7 @@ Quarterly drill: spin a fresh test VPS, pull the latest backup, decrypt with the
   - Name: `darkhorse-heartbeat`.
   - Code: a small fetch-and-alert script that pings your Tailscale-exposed `/healthz` endpoint via Tailscale Funnel or a public proxy you set up. (Or run the watcher externally without Cloudflare; Cloudflare just makes it convenient.)
   - **Wait until you've designed the heartbeat in Phase 3.5 before completing this.**
-- [ ] (Phase 6+) For Cloudflare Access (browser-anywhere): Configure a Cloudflare Tunnel from the Hetzner host to Cloudflare Edge, gate the tunnel with Access (email allow-list of just your email).
+- [ ] (Phase 6+) For Cloudflare Access (browser-anywhere): Configure a Cloudflare Tunnel from the Linode host to Cloudflare Edge, gate the tunnel with Access (email allow-list of just your email).
 
 ### Info to capture
 

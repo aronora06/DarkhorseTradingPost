@@ -13,7 +13,7 @@ Living document — extend as weekly reviews surface failures. Mirrors high-leve
 | AP-07 | **Duplicate fire trades** | Retry amplification | Deterministic client order ids |
 | AP-08 | **Confidence inflation on thin data** | Calibration drift | Confidence gate + weekly calibration |
 
-Promotion to doctrine requires slow path (`plans/suggestedNextSteps.md` §1.1); anti-patterns here are **immediate caution flags**, not promoted lessons.
+Promotion to doctrine requires slow path (`suggestedNextSteps.md` §2); anti-patterns here are **immediate caution flags**, not promoted lessons.
 
 ---
 

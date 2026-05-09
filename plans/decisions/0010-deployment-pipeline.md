@@ -39,8 +39,8 @@ Pipeline stages:
    ```bash
    ./scripts/deploy.sh
    ```
-   The script does:
-   - SSH to Hetzner via Tailscale hostname
+   *(Script to be created in Phase 3.5 when the Linode host is provisioned.)* The script will:
+   - SSH to Linode via Tailscale hostname
    - `cd /opt/darkhorse && git fetch && git checkout <SHA>`
    - `uv sync --frozen`
    - `systemctl restart darkhorse-web` (or whichever services changed)
@@ -51,7 +51,7 @@ Pipeline stages:
    ```bash
    ./scripts/rollback.sh
    ```
-   Reverts to the previous deployed SHA, restarts services. Idempotent.
+   *(Script to be created alongside `deploy.sh` in Phase 3.5.)* Reverts to the previous deployed SHA, restarts services. Idempotent.
 
 ## Consequences
 

@@ -1,6 +1,6 @@
 # Satellite extension watchlist (template)
 
-**Owner:** Aaron Parker (human). Agent may challenge but **not originate** names (`plans/suggestedNextSteps.md` §2.1).
+**Owner:** Aaron Parker (human). Agent may challenge but **not originate** names (`suggestedNextSteps.md` §2).
 
 **Rules:**
 

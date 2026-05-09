@@ -2,13 +2,18 @@
 
 Usage::
 
+    # Minimal probe (default):
     uv run python -m darkhorse.testing.record <cassette_name>
 
-This sends a minimal probe request to the Anthropic API using real credentials
-from ``.env`` and writes the response to ``tests/cassettes/<cassette_name>.json``.
+    # Full market_open routine:
+    uv run python -m darkhorse.testing.record <cassette_name> --routine market_open
 
-For full test-specific cassettes, run pytest with ``DARKHORSE_RECORD_CASSETTES=1``
-(once a harness test suite exists that uses ``CassetteTransport`` in record mode).
+The probe mode sends a single cheap request to verify API credentials.
+The ``market_open`` mode runs the complete routine so every Anthropic
+round-trip (researcher + risk-manager) is captured for deterministic replay.
+
+Broker, data, and news HTTP calls still go live on their own clients --
+the cassette only intercepts Anthropic API traffic.
 """
 
 from __future__ import annotations
@@ -22,6 +27,47 @@ import httpx
 from darkhorse.testing.cassette import CassetteTransport, save_cassette
 
 
+def _run_probe(client: httpx.Client, *, model: str, prompt: str) -> None:
+    """Fire a single cheap Anthropic call to verify API connectivity."""
+    from darkhorse.config import get_settings
+
+    settings = get_settings()
+    api_key = settings.anthropic_api_key.get_secret_value()
+
+    response = client.post(
+        "https://api.anthropic.com/v1/messages",
+        headers={
+            "x-api-key": api_key,
+            "anthropic-version": "2023-06-01",
+            "content-type": "application/json",
+        },
+        json={
+            "model": model,
+            "max_tokens": 64,
+            "system": prompt,
+            "messages": [{"role": "user", "content": "ping"}],
+        },
+    )
+    response.raise_for_status()
+    print("Probe complete.")
+
+
+def _run_market_open(client: httpx.Client) -> None:
+    """Run the full market_open routine with cassette recording."""
+    from darkhorse.routines.market_open import run_market_open
+
+    print("Running market_open routine (this makes live Anthropic + data calls)...")
+    record = run_market_open(anthropic_http_client=client)
+
+    if record is None:
+        print("Routine returned None (composition layer blocked trading).")
+    else:
+        print(f"Routine finished: action={record.action}, ticker={record.ticker}")
+
+
+_VALID_ROUTINES = ("probe", "market_open")
+
+
 def main(argv: list[str] | None = None) -> None:
     parser = argparse.ArgumentParser(
         description="Record an Anthropic API cassette for deterministic replay.",
@@ -31,14 +77,21 @@ def main(argv: list[str] | None = None) -> None:
         help="Name for the cassette (written to tests/cassettes/<name>.json).",
     )
     parser.add_argument(
+        "--routine",
+        default="probe",
+        choices=_VALID_ROUTINES,
+        help="Which routine to record. 'probe' (default) sends a single cheap "
+        "request; 'market_open' captures the full routine.",
+    )
+    parser.add_argument(
         "--prompt",
         default="Respond with exactly: CASSETTE_PROBE_OK",
-        help="System prompt for the recording probe.",
+        help="System prompt for the probe recording (ignored for market_open).",
     )
     parser.add_argument(
         "--model",
         default="claude-haiku-4-5-20250514",
-        help="Model to record against (cheapest by default).",
+        help="Model for the probe recording (ignored for market_open).",
     )
     args = parser.parse_args(argv)
 
@@ -52,27 +105,11 @@ def main(argv: list[str] | None = None) -> None:
         live_transport=live_transport,
     )
 
-    from darkhorse.config import get_settings
-
-    settings = get_settings()
-    api_key = settings.anthropic_api_key.get_secret_value()
-
     with httpx.Client(transport=transport) as client:
-        response = client.post(
-            "https://api.anthropic.com/v1/messages",
-            headers={
-                "x-api-key": api_key,
-                "anthropic-version": "2023-06-01",
-                "content-type": "application/json",
-            },
-            json={
-                "model": args.model,
-                "max_tokens": 64,
-                "system": args.prompt,
-                "messages": [{"role": "user", "content": "ping"}],
-            },
-        )
-        response.raise_for_status()
+        if args.routine == "market_open":
+            _run_market_open(client)
+        else:
+            _run_probe(client, model=args.model, prompt=args.prompt)
 
     entries = transport._entries  # noqa: SLF001
     print(f"Recorded {len(entries)} interaction(s).")

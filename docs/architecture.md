@@ -373,7 +373,7 @@ Lock-in summary, with ADR refs:
 | Charts | Plotly.js (CDN, conditional) | `0004` |
 | Memory source-of-truth | JSONL + Markdown | `0003` |
 | Memory query mirror | SQLite | `0003` |
-| Hosting | Hetzner Cloud CX22 (Ashburn US) | `0005` |
+| Hosting | Linode Nanode 1GB (Newark US) | `0005` |
 | Scheduler | systemd timers | `0006` |
 | Auth | Tailscale presence | `0004`, `0005` |
 | Notifications | Discord webhook | `0011` |
@@ -434,7 +434,7 @@ DarkhorseTradingOutpost/
                            │
                            ▼
    ┌────────────────────────────────────────────────────────────┐
-   │  Hetzner CX22, Ashburn US (Ubuntu 24.04 LTS)               │
+   │  Linode Nanode 1GB, Newark US (Ubuntu 24.04 LTS)            │
    │                                                             │
    │  ┌──────────────────┐    ┌──────────────────┐              │
    │  │ systemd timers    │ →  │ python -m darkh- │              │
@@ -565,7 +565,7 @@ All ADRs in `plans/decisions/`. Each is independently readable.
 | 0002 | Tiered Model Strategy | accepted | 2026-08-09 |
 | 0003 | Memory Architecture — JSONL + SQLite Mirror | accepted | 2026-11-09 |
 | 0004 | Frontend Stack — FastAPI + HTMX + Alpine + Tailwind + DaisyUI | accepted | 2026-11-09 |
-| 0005 | Hosting — Hetzner CX22 (Ashburn US) | accepted | 2026-11-09 |
+| 0005 | Hosting — Linode Nanode 1GB (Newark US) | superseded | 2026-11-09 |
 | 0006 | Scheduler — systemd Timers | accepted | 2026-11-09 |
 | 0007 | Python Project Layout & Tooling | accepted | 2026-11-09 |
 | 0008 | Agentic Harness Pattern — Custom Thin Wrapper | accepted | 2026-08-09 |

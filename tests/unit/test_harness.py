@@ -96,16 +96,16 @@ def _no_trade_decision_json() -> str:
     return json.dumps(
         {
             "action": "NO_TRADE",
-            "ticker": None,
-            "qty": None,
-            "order_type": None,
-            "limit_price": None,
+            "ticker": "",
+            "qty": 0,
+            "order_type": "none",
+            "limit_price": "",
             "time_in_force": "day",
             "confidence": 0.3,
-            "expected_horizon_days": None,
-            "expected_outcome_pct": None,
+            "expected_horizon_days": 0,
+            "expected_outcome_pct": 0.0,
             "thesis_summary": "Insufficient evidence for any trade.",
-            "reasoning_trace": {"base_rate": "flat", "spy_comparison": "hold"},
+            "reasoning_steps": ["base_rate: flat", "spy_comparison: hold"],
             "market_order_exception": False,
             "lessons_referenced": [],
             "anti_patterns_flagged": [],
@@ -126,7 +126,7 @@ def _buy_decision_json() -> str:
             "expected_horizon_days": 30,
             "expected_outcome_pct": 5.0,
             "thesis_summary": "Strong earnings momentum with reasonable valuation.",
-            "reasoning_trace": {"base_rate": "bullish", "spy_comparison": "outperform"},
+            "reasoning_steps": ["base_rate: bullish", "spy_comparison: outperform"],
             "market_order_exception": False,
             "lessons_referenced": [],
             "anti_patterns_flagged": [],
@@ -343,7 +343,7 @@ def test_accumulate_cost() -> None:
 def test_llm_decision_output_no_trade_parses() -> None:
     decision = LLMDecisionOutput.model_validate_json(_no_trade_decision_json())
     assert decision.action == "NO_TRADE"
-    assert decision.ticker is None
+    assert decision.ticker == ""
     assert decision.confidence == 0.3
 
 
@@ -565,6 +565,22 @@ def test_researcher_tool_loop_with_tool_use(tmp_path: Path) -> None:
     assert iterations == 2
     assert len(tools_used) == 1
     assert tools_used[0]["tool"] == "alpaca_account"
+    assert tools_used[0]["result_hash"] is not None
+    assert len(tools_used[0]["result_hash"]) == 16
+
+
+def test_researcher_result_hash_is_deterministic(tmp_path: Path) -> None:
+    """Same tool result must produce the same hash across calls."""
+    import hashlib
+
+    result = {"status": "ACTIVE", "equity_usd": "1000.00"}
+    result_json = json.dumps(result, default=str, sort_keys=True)
+    expected = hashlib.sha256(result_json.encode()).hexdigest()[:16]
+
+    hash_a = hashlib.sha256(result_json.encode()).hexdigest()[:16]
+    hash_b = hashlib.sha256(result_json.encode()).hexdigest()[:16]
+
+    assert hash_a == hash_b == expected
 
 
 # ---------------------------------------------------------------------------

@@ -1,8 +1,8 @@
-# ADR-0005: Hosting — Hetzner Cloud CX22 (Ashburn US)
+# ADR-0005: Hosting — Linode Nanode 1GB (Newark US)
 
 ## Status
 
-`accepted` (2026-05-09) — supersedes the Linode recommendation in `../frontendAndHosting.md`.
+`superseded` (2026-05-09) — **Aaron chose Linode** over the previously accepted Hetzner CX22 recommendation. Rationale: familiarity, US billing, proven US East presence, and $5/mo is within budget. The original Hetzner analysis is preserved in `../../RESEARCH/architecture/hosting_comparison.md` for reference.
 
 ## Context
 
@@ -13,11 +13,11 @@ The agent + dashboard need a hosted environment that:
 - Has low-enough operational burden that one person manages it
 - Costs ≤ ~$10/month total infrastructure
 
-Original recommendation in `../frontendAndHosting.md` (written before the 2026-05-09 hosting research) was **Linode Nanode 1GB at $5/month**. A 2026 review surfaced a meaningfully better option.
+Initial research recommended Hetzner CX22 in Ashburn on price/performance grounds. Aaron prefers Linode for simplicity, US billing, and established track record.
 
 ## Decision
 
-**Hetzner Cloud CX22 in Ashburn US East, ~$4.20/month.** Specs: 2 vCPU, 4 GB RAM, 40 GB NVMe, 20 TB bandwidth.
+**Linode Nanode 1GB in Newark US, $5/month.** Specs: 1 vCPU, 1 GB RAM, 25 GB SSD, 1 TB bandwidth.
 
 Provisioning:
 - Ubuntu 24.04 LTS
@@ -30,42 +30,40 @@ Provisioning:
 
 ### Positive
 
-- **4× RAM, 2× CPU, NVMe storage, 20× bandwidth at lower price** vs Linode Nanode 1GB.
-- **Same metro as Alpaca's primary US infra** (Ashburn VA / Equinix DC2). Latency to broker APIs is comparable to Linode Newark.
-- 4 GB RAM is comfortable headroom for multi-agent debate with prompt caching; 1 GB on Linode would be tight.
-- NVMe storage means SQLite query latency stays low even as the journal grows.
-- 20 TB egress means we never worry about bandwidth costs on backups, dashboards, or API egress to providers.
+- **Proven US East infrastructure** — Linode (now Akamai) has operated in Newark for over a decade. Extensive community documentation.
+- **US billing in USD** — no EUR conversion or international billing complications.
+- **Newark datacenter is close to Alpaca's primary US infra** (Ashburn VA / Equinix DC2). Latency ~15-30ms expected.
+- 1 GB RAM is sufficient for the single-agent harness + FastAPI dashboard. If multi-agent debate (Phase 5) proves tight, upgrade to Linode 2GB ($12/mo) is a one-click resize.
+- 1 TB bandwidth is more than sufficient for our use case (API calls + dashboard).
 
 ### Negative / costs
 
-- Hetzner is newer in the US (Ashburn opened 2024–2025). 6 months of operating data on the new region < the multi-decade history of Linode/AWS/DO in US East. Mitigated by the low cost of switching (provider-agnostic stack).
-- Billing in EUR (minor accounting nuisance — auto-converted by Hetzner to USD on invoices).
-- Less brand recognition in US-centric documentation. Migration tutorials assume Linode/DO; we'll write our own setup notes.
+- **1 GB RAM is tighter than the Hetzner CX22's 4 GB.** May need an upgrade for multi-agent debate in Phase 5. The upgrade path is straightforward (Linode resize).
+- **$0.80/mo more expensive** than Hetzner CX22 (~$4.20) for less specs. Acceptable given the simplicity/familiarity benefits.
+- **25 GB SSD vs 40 GB NVMe.** Sufficient for JSONL + SQLite; monitor disk usage monthly.
 
 ### Neutral
 
-- Some Hetzner products are IPv6-only at lower price tiers. The CX22 default includes IPv4; verify at provisioning time.
+- Linode was acquired by Akamai in 2023. No impact on VPS pricing or service quality observed through 2026.
 
 ## Alternatives considered
 
-- **Linode Nanode 1GB ($5).** Original recommendation. Rejected on price/performance grounds. Acceptable fallback.
-- **DigitalOcean Basic Droplet ($6).** Comparable to Linode. Rejected for the same price/performance reason.
-- **Vultr ($2.50–$5).** Comparable specs to Linode at competitive prices. Less reputational track record than Linode/Hetzner. Acceptable fallback.
-- **Fly.io ($30–50/mo).** PaaS with global deploy. Overpriced and over-engineered for our shape. Rejected.
-- **Railway ($25–40/mo).** PaaS. Recent reliability issues (Dec 2025 EU outages). Rejected.
-- **Render ($25–85/mo).** PaaS. Overpriced for our shape. Rejected.
-- **AWS Lightsail ($5).** Vendor lock-in to AWS ecosystem with no offsetting benefit. Rejected.
+- **Hetzner Cloud CX22 ($4.20).** Better specs for less money. Rejected by Aaron in favor of familiarity and US billing.
+- **DigitalOcean Basic Droplet ($6).** Comparable to Linode. No advantage over Linode at this tier.
+- **Vultr ($2.50–$5).** Competitive pricing. Less established than Linode. Acceptable fallback.
+- **Fly.io / Railway / Render ($25–85/mo).** PaaS. Overpriced for our shape.
+- **AWS Lightsail ($5).** Vendor lock-in to AWS ecosystem with no offsetting benefit.
 - **Aaron's own machine.** Per `../initialPlan.md` §10 and `../frontendAndHosting.md`, rejected — laptops sleep, miss routines.
 
 ## Falsification criterion
 
 This decision is wrong if:
 
-- Hetzner Ashburn experiences ≥ 1 multi-hour outage in any month during Phase 4–6.
-- Latency to Alpaca API consistently exceeds 50 ms p95 (vs ~15–25 ms expected).
-- A pricing change or sunset announcement affects Ashburn or the CX22 tier.
+- Linode Newark experiences ≥ 1 multi-hour outage in any month during Phase 4–6.
+- 1 GB RAM proves insufficient for the harness and requires an upgrade sooner than Phase 5.
+- Latency to Alpaca API consistently exceeds 50 ms p95.
 
-In any case, fall back to Linode Newark. The migration is a tarball + DNS swap, ~2 hours of downtime.
+In any case, Hetzner CX22 Ashburn remains the documented fallback. The migration is a tarball + DNS swap, ~2 hours of downtime.
 
 ## Linked hypotheses
 
@@ -79,4 +77,4 @@ None. Hosting is operational infrastructure, not a research variable.
 
 - `../../RESEARCH/architecture/hosting_comparison.md` (research note with full comparison table)
 - `../frontendAndHosting.md` (deployment pattern, monitoring, secrets)
-- Hetzner Cloud locations docs (Ashburn `ash-dc1`)
+- Linode Nanode docs: https://www.linode.com/pricing/

@@ -4,19 +4,19 @@ Current recommendations for moving from Phase 3 foundations toward paper trading
 
 ## 0. Current status (2026-05-09)
 
-Phase 0-3 complete. **Phase 4a (production harness + paper trading pipeline) is implemented.**
+Phase 0-3 complete. **Phase 4a is in progress — first paper runs successful, working toward 5 clean trading days.**
 
 - All Phase 3 foundations remain in place: Python scaffold, `uv`, Ruff, mypy strict, pytest, Hypothesis, CI coverage gates, deterministic risk modules, core utilities, tools, cassette scaffolding, network guardrails.
-- **Production Anthropic harness** (`src/darkhorse/harness.py`, 784 lines): researcher (Sonnet 4.6) with tool loop + risk-manager (Opus 4.7) with structured JSON output. Prompt caching (1h TTL), per-call cost telemetry, tenacity retry on transient errors, structlog.
+- **Production Anthropic harness** (`src/darkhorse/harness.py`): researcher (Sonnet 4.6) with tool loop + risk-manager (Opus 4.7) with structured JSON output. Prompt caching (1h TTL), per-call cost telemetry with SHA-256 result hashes, tenacity retry on transient errors, structlog.
 - **End-to-end `market_open` routine** (`src/darkhorse/routines/market_open.py`): compose risk state → researcher → risk-manager → confidence gate (0.70) → `validate_order` → `submit_order` to Alpaca paper → journal + audit + Discord notify.
 - **Expanded production prompts**: `system_core.md`, `researcher.md`, `risk_manager.md` with doctrine injection, decision JSON schema, tool guidance, confidence calibration, hard boundaries.
-- **159 tests passing**, 88.85% package coverage, 96.32% risk coverage. 42 new tests cover the harness (tool dispatch, cost computation, researcher loop, risk-manager structured output, full session flows, retry predicate) and market_open (NO_TRADE, confidence gate, BUY dry-run, BUY paper submit, kill switch blocks, journal/audit/notify).
+- **First paper runs completed (2026-05-09):** 4 runs total. Both full harness runs returned NO_TRADE with detailed reasoning. Journal records now include full researcher narrative (~11K chars), tool result hashes, per-decision cost breakdowns.
+- **Cassette recorded:** `tests/cassettes/market_open_initial.json` — 5 Anthropic interactions. Record CLI supports `--routine market_open` for full-pipeline captures.
+- **166 tests passing**, 89.49% package coverage, 96.32% risk coverage.
 
 **API connections verified (2026-05-09):** Anthropic (Haiku/Sonnet/Opus accessible), Alpaca paper ($1,000 paper equity, ACTIVE), Perplexity Sonar, Tavily, Finnhub, Discord webhook. All keys populated in `.env`. Smoke tests at `tests/smoke/test_api_connections.py`.
 
-**Ready for first paper run.** The harness is fully wired. Next step: run `python -m darkhorse.routines.market_open` against the live Alpaca paper account and verify the journal/audit/notification pipeline.
-
-**Not yet done:** Initial cassette recording from live run, local scheduler, SnapTrade wrapper, dashboard, hosting deployment, live account funding.
+**Not yet done:** Local scheduler activation, SnapTrade wrapper, dashboard, hosting deployment, live account funding.
 
 **Alpaca live account:** Setup in progress, awaiting authorization. Placeholder keys in `.env`. Live trading deferred until approved and funded.
 
@@ -58,10 +58,10 @@ Not a blocker for Core paper trading or Phase 4. Draft when ready.
 
 ### 4.1 ~~Immediate: build the production harness for paper trading~~ DONE (2026-05-09)
 
-1. [x] **`src/darkhorse/harness.py` production loop** — researcher (Sonnet 4.6) with tool loop + risk-manager (Opus 4.7) with structured output. Prompt caching, cost telemetry, retry, structlog. 784 lines.
+1. [x] **`src/darkhorse/harness.py` production loop** — researcher (Sonnet 4.6) with tool loop + risk-manager (Opus 4.7) with structured output. Prompt caching, cost telemetry with SHA-256 result hashes, retry, structlog.
 2. [x] **`market_open` routine wired end-to-end** — compose → harness → confidence gate → validate_order → submit_order → journal + audit + Discord.
-3. [ ] **Record initial cassettes** — run the harness once live (`uv run python -m darkhorse.testing.record market_open_initial`), commit the cassette, then all CI tests replay from it.
-4. [ ] **Run the paper routine manually** — verify: decision journaled, audit logged, Alpaca paper order placed (or NO_TRADE), Discord notification sent, cost within budget.
+3. [x] **Record initial cassettes** — `market_open_initial.json` captured 5 Anthropic interactions. Record CLI supports `--routine market_open` for full-pipeline cassettes.
+4. [x] **Run the paper routine manually** — 4 runs completed. Journal records include full research context, tool result hashes, cost telemetry. Discord notifications confirmed. Cost: $0.46–$0.69/run.
 
 ### 4.2 Next: automated paper trading schedule
 
@@ -82,7 +82,7 @@ Once the live account is approved, funded, and paper trading has proven clean:
 
 ### 4.4 Phase 3.5 operations (can proceed in parallel)
 
-- Provision Hetzner CX22 Ashburn, Tailscale, systemd skeletons, reverse proxy/TLS, backups, heartbeat watchers.
+- Provision Linode Nanode 1GB Newark, Tailscale, systemd skeletons, reverse proxy/TLS, backups, heartbeat watchers.
 - Deploy `.env` to the target machine with locked-down permissions.
 - Move the scheduler from local Mac to the VPS once stable.
 
@@ -101,4 +101,4 @@ These aren't blockers; logging them so they don't get lost:
 
 ## 7. Highest-priority recommendation
 
-Run the production harness against the Alpaca paper account. The harness is built, tested, and wired end-to-end. Execute `python -m darkhorse.routines.market_open`, verify the journal/audit/Discord pipeline, record the first cassette, then set up the local scheduler for 5 days of automated paper trading.
+Set up the local scheduler (launchd on Mac) to fire `market_open` at 9:35 AM ET on weekdays. The harness, journal pipeline, cassette recording, and Discord notifications are all proven. The next milestone is 5 clean trading days on paper with Aaron reviewing every journal entry.

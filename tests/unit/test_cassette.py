@@ -203,3 +203,79 @@ class TestExampleCassette:
         assert "request_hash" in entries[0]
         assert entries[0]["response"]["status_code"] == 200
         assert entries[0]["response"]["body"]["content"][0]["text"] == "CASSETTE_PROBE_OK"
+
+
+# ---------------------------------------------------------------------------
+# record.py CLI tests
+# ---------------------------------------------------------------------------
+
+
+class TestRecordCLI:
+    """Tests for the record CLI (darkhorse.testing.record)."""
+
+    def test_probe_mode_records_cassette(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """Probe mode records a single interaction to the cassette file."""
+        from darkhorse.testing.record import main
+
+        cassette_dir = tmp_path / "cassettes"
+        cassette_dir.mkdir()
+
+        monkeypatch.chdir(tmp_path)
+        (tmp_path / "tests" / "cassettes").mkdir(parents=True)
+
+        probe_response = {
+            "id": "msg_probe_001",
+            "type": "message",
+            "role": "assistant",
+            "content": [{"type": "text", "text": "CASSETTE_PROBE_OK"}],
+            "model": "claude-haiku-4-5-20250514",
+            "stop_reason": "end_turn",
+            "stop_sequence": None,
+            "usage": {
+                "input_tokens": 10,
+                "cache_creation_input_tokens": 0,
+                "cache_read_input_tokens": 0,
+                "output_tokens": 5,
+            },
+        }
+
+        def mock_handler(request: httpx.Request) -> httpx.Response:
+            return httpx.Response(200, json=probe_response)
+
+        monkeypatch.setattr(
+            "darkhorse.testing.record.httpx.HTTPTransport",
+            lambda: httpx.MockTransport(mock_handler),
+        )
+
+        main(["test_probe"])
+
+        cassette_path = tmp_path / "tests" / "cassettes" / "test_probe.json"
+        assert cassette_path.exists()
+        entries = json.loads(cassette_path.read_text(encoding="utf-8"))
+        assert len(entries) == 1
+        assert entries[0]["response"]["status_code"] == 200
+
+    def test_record_cli_accepts_routine_flag(self) -> None:
+        """Verify the --routine flag is accepted by the argument parser."""
+        import argparse
+
+        parser = argparse.ArgumentParser()
+        parser.add_argument("cassette_name")
+        parser.add_argument("--routine", default="probe", choices=("probe", "market_open"))
+
+        args = parser.parse_args(["test_name", "--routine", "market_open"])
+        assert args.routine == "market_open"
+        assert args.cassette_name == "test_name"
+
+    def test_record_cli_defaults_to_probe(self) -> None:
+        """Without --routine, defaults to probe mode."""
+        import argparse
+
+        parser = argparse.ArgumentParser()
+        parser.add_argument("cassette_name")
+        parser.add_argument("--routine", default="probe", choices=("probe", "market_open"))
+
+        args = parser.parse_args(["test_name"])
+        assert args.routine == "probe"

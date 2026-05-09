@@ -1,12 +1,13 @@
 """Production Anthropic harness — thin LLM loop with deterministic risk walls.
 
-ADR-0008: custom harness, no framework. Target <500 lines.
+ADR-0008: custom harness, no framework (reconsider split if >1000 lines).
 Architecture: researcher (Sonnet) gathers context via tools, risk-manager (Opus)
 produces a structured decision, Python validates before any order submission.
 """
 
 from __future__ import annotations
 
+import hashlib
 import json
 import uuid
 from decimal import Decimal
@@ -66,21 +67,25 @@ class ToolDefinition(BaseModel):
 
 
 class LLMDecisionOutput(BaseModel):
-    """Schema the risk-manager emits via structured output."""
+    """Schema the risk-manager emits via structured output.
+
+    Fields are non-nullable to satisfy Anthropic's grammar compiler.
+    Empty strings / 0 values represent "not applicable" for NO_TRADE.
+    """
 
     model_config = ConfigDict(extra="forbid")
 
     action: Literal["BUY", "SELL", "NO_TRADE"]
-    ticker: str | None = None
-    qty: int | None = Field(default=None, ge=1)
-    order_type: Literal["limit", "market"] | None = None
-    limit_price: str | None = None
+    ticker: str = ""
+    qty: int = Field(default=0, ge=0)
+    order_type: Literal["limit", "market", "none"] = "none"
+    limit_price: str = ""
     time_in_force: Literal["day", "gtc"] = "day"
-    confidence: float = Field(ge=0.0, le=1.0)
-    expected_horizon_days: int | None = Field(default=None, ge=0)
-    expected_outcome_pct: float | None = None
-    thesis_summary: str
-    reasoning_trace: dict[str, Any] = Field(default_factory=dict)
+    confidence: float = Field(default=0.0, ge=0.0, le=1.0)
+    expected_horizon_days: int = Field(default=0, ge=0)
+    expected_outcome_pct: float = 0.0
+    thesis_summary: str = ""
+    reasoning_steps: list[str] = Field(default_factory=list)
     market_order_exception: bool = False
     lessons_referenced: list[str] = Field(default_factory=list)
     anti_patterns_flagged: list[str] = Field(default_factory=list)
@@ -202,7 +207,67 @@ def build_anthropic_tools(
 def _strict_schema(model: type[ToolContractModel]) -> dict[str, Any]:
     schema = model.model_json_schema()
     schema["additionalProperties"] = False
+    _strip_unsupported_numeric_constraints(schema)
     return schema
+
+
+_UNSUPPORTED_NUMERIC_KEYS: frozenset[str] = frozenset(
+    {"minimum", "maximum", "exclusiveMinimum", "exclusiveMaximum"}
+)
+
+_CONSTRAINED_TYPES: frozenset[str] = frozenset({"integer", "number"})
+
+
+def _strip_unsupported_numeric_constraints(node: dict[str, Any]) -> None:
+    """Anthropic rejects minimum/maximum on integer and number type properties."""
+    if node.get("type") in _CONSTRAINED_TYPES:
+        for key in _UNSUPPORTED_NUMERIC_KEYS:
+            node.pop(key, None)
+    for value in node.values():
+        if isinstance(value, dict):
+            _strip_unsupported_numeric_constraints(value)
+        elif isinstance(value, list):
+            for item in value:
+                if isinstance(item, dict):
+                    _strip_unsupported_numeric_constraints(item)
+
+
+_DECISION_OUTPUT_SCHEMA: dict[str, Any] = {
+    "type": "object",
+    "additionalProperties": False,
+    "required": [
+        "action",
+        "ticker",
+        "qty",
+        "order_type",
+        "limit_price",
+        "time_in_force",
+        "confidence",
+        "expected_horizon_days",
+        "expected_outcome_pct",
+        "thesis_summary",
+        "reasoning_steps",
+        "market_order_exception",
+        "lessons_referenced",
+        "anti_patterns_flagged",
+    ],
+    "properties": {
+        "action": {"type": "string", "enum": ["BUY", "SELL", "NO_TRADE"]},
+        "ticker": {"type": "string", "description": "Symbol or empty string for NO_TRADE"},
+        "qty": {"type": "integer", "description": "Shares, 0 for NO_TRADE"},
+        "order_type": {"type": "string", "enum": ["limit", "market", "none"]},
+        "limit_price": {"type": "string", "description": "Decimal string or empty"},
+        "time_in_force": {"type": "string", "enum": ["day", "gtc"]},
+        "confidence": {"type": "number"},
+        "expected_horizon_days": {"type": "integer"},
+        "expected_outcome_pct": {"type": "number"},
+        "thesis_summary": {"type": "string"},
+        "reasoning_steps": {"type": "array", "items": {"type": "string"}},
+        "market_order_exception": {"type": "boolean"},
+        "lessons_referenced": {"type": "array", "items": {"type": "string"}},
+        "anti_patterns_flagged": {"type": "array", "items": {"type": "string"}},
+    },
+}
 
 
 _TOOL_DESCRIPTIONS: dict[str, str] = {
@@ -513,12 +578,16 @@ def run_researcher(
                     broker_client=broker_client,
                     allowed_symbols=allowed_symbols,
                 )
-                tools_used.append({"tool": block.name, "args": block.input})
+                result_json = json.dumps(result, default=str, sort_keys=True)
+                result_hash = hashlib.sha256(result_json.encode()).hexdigest()[:16]
+                tools_used.append(
+                    {"tool": block.name, "args": block.input, "result_hash": result_hash}
+                )
                 tool_results.append(
                     {
                         "type": "tool_result",
                         "tool_use_id": block.id,
-                        "content": json.dumps(result, default=str),
+                        "content": result_json,
                     }
                 )
             messages.append({"role": "user", "content": tool_results})
@@ -564,7 +633,7 @@ def run_risk_manager(
         output_config={
             "format": {
                 "type": "json_schema",
-                "schema": LLMDecisionOutput.model_json_schema(),
+                "schema": _DECISION_OUTPUT_SCHEMA,
             }
         },
     )
