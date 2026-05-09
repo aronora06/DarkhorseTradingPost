@@ -45,8 +45,21 @@ What we don't yet know, what we'd test if we had data.
 Minimal working examples, with provider/version pinned.
 ```
 
+## Index (active notes)
+
+| Note | Purpose |
+|---|---|
+| `agent_failure_modes.md` | Recurring LLM agent failure families → mitigations |
+| `multi_agent_debate.md` | TradingAgents paper vs Darkhorse debate graph |
+| `agentic_harness_patterns.md` | Framework survey informing ADR-0008 |
+| `anthropic_sdk_features.md` | Structured outputs, caching, tool loop (pin provider facts here) |
+| `frontend_dashboard_stack.md` | ADR-0004 trace |
+| `hosting_comparison.md` | ADR-0005 trace |
+| `python_project_tooling_2026.md` | ADR-0007 trace |
+| `testing_ai_agents.md` | ADR-0009 trace |
+
 ## Discipline
 
 - **Reviewed at refresh.** API surfaces and best practices change quickly. A note from a year ago may be stale.
 - **No ADR without a note (when applicable).** If an ADR's reasoning fits in the ADR itself, fine. If it requires more context, the note lives here.
-- **Cite specific commits / versions.** "Anthropic structured outputs beta header `structured-outputs-2025-11-13`" not "the structured outputs beta."
+- **Cite specific commits / versions.** E.g. structured outputs status belongs in `anthropic_sdk_features.md` with dates — avoid stale beta-header shorthand in steering docs.

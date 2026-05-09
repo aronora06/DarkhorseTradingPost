@@ -4,14 +4,17 @@ Synthesized consensus from working practitioners on specific operational questio
 
 The point is to triangulate: when Kaufman, Tharp, Clenow, and Robot Wealth all converge on a number for drawdown halts, that's a stronger signal than any one of them alone. When they disagree, the disagreement itself is informative.
 
+## Index (Phase 1)
+
+| File | Topic |
+|---|---|
+| [`drawdown_halts.md`](drawdown_halts.md) | Daily loss vs peak-to-trough halts; uncle points |
+| [`universe_small_account.md`](universe_small_account.md) | Liquidity, breadth, spread costs at ~$1k AUM |
+| [`sizing_and_pdt.md`](sizing_and_pdt.md) | Position sizing discipline + PDT guardrails |
+
 ## When to write a dossier
 
-When a doctrine decision needs an outside-view sanity check beyond a single source. Phase 1 calls for two:
-
-- **Drawdown halts** — what thresholds do practitioners actually use, and why?
-- **Universe selection at small account sizes** — what does the practitioner consensus say about $1k–$5k portfolios?
-
-Add new dossiers when a new operational question warrants the same treatment (e.g. position sizing for thesis-driven concentrated bets, when a lessons-promotion decision needs more outside grounding).
+When a doctrine decision needs an outside-view sanity check beyond a single source. Phase 1 established three focused dossiers (above); add more when a new operational question warrants the same treatment (e.g. options policy once v2 enables derivatives).
 
 ## File format
 

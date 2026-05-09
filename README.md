@@ -10,11 +10,11 @@ Year-1 ambition: produce data and findings sufficient for a credible research pu
 
 **Phase 0 — Steering documentation: complete (2026-05-08).** All steering docs in `plans/` reviewed and signed off. Repo is private on GitHub; Aaron pushes directly to `main`. Agent-proposed doctrine changes still flow through draft PRs as the discipline mechanism.
 
-**Phase 2 — Architecture Research & Codification: substantially complete (2026-05-09).** The master architecture is documented at `docs/architecture.md`. Twelve foundational ADRs are filed under `plans/decisions/` covering hosting, harness pattern, Python tooling, testing strategy, deployment, observability, and configuration. Six architecture research notes live under `RESEARCH/architecture/`. Phase 2's remaining deeper-paper-reads (TradingAgents, agent failure modes) continue in parallel and will inform ADR re-checks at the 6-month mark.
+**Phase 2 — Architecture Research & Codification: substantially complete (2026-05-09).** The master architecture is documented at `docs/architecture.md`. Twelve foundational ADRs are filed under `plans/decisions/` covering hosting, harness pattern, Python tooling, testing strategy, deployment, observability, and configuration. Architecture notes live under `RESEARCH/architecture/` (including TradingAgents debate mapping + agent failure-mode synthesis). Remaining Phase 2 prototyping notes (`structured_outputs.md`, `prompt_caching.md`, etc.) are optional depth — track in `plans/devPhaseChecklist.md`.
 
-**Phase 1 — Risk Mitigation Research & Codification: in progress.** No costs accruing yet. Account setups (Alpaca, Anthropic, Perplexity, SnapTrade, Discord) are running in parallel given their lead times. See `plans/devPhaseChecklist.md` for the executable list and `plans/suggestedNextSteps.md` §2–3 for the recommended week-by-week sequence.
+**Phase 1 — Risk Mitigation Research & Codification: complete (2026-05-09).** Doctrine approved and indexed under [`doctrine/`](doctrine/); Markdown test specs approved under [`tests/specs/`](tests/specs/) (human sign-off recorded in `plans/devPhaseChecklist.md` §1.4). Practitioner dossiers, adversarial catalog, and major-risk paper summaries live under [`RESEARCH/`](RESEARCH/). Populate [`doctrine/satellite_watchlist.md`](doctrine/satellite_watchlist.md) before Satellite goes live (Phase 9 path). Account setups: [`accountSetup.md`](accountSetup.md).
 
-**Phase 3 — Foundations Build: ready to start once Phase 1 doctrine is codified.** All architecture decisions are in place to begin scaffolding `src/darkhorse/`.
+**Phase 3 — Foundations Build: cleared to start.** Per checklist, Phase 3 does not require every optional Phase 2 research stub (`structured_outputs.md`, `prompt_caching.md`, …) — those continue in parallel. First implementation targets: `pyproject.toml` + `src/darkhorse/` scaffold (ADR-0007), then `validate_order` + tests (`plans/devPhaseChecklist.md` Phase 3).
 
 ## Documents
 
@@ -31,22 +31,25 @@ Year-1 ambition: produce data and findings sufficient for a credible research pu
 ### Operational (the executable list and sequencing)
 
 8. **[plans/devPhaseChecklist.md](plans/devPhaseChecklist.md)** — the executable to-do list across all phases
-9. **[plans/suggestedNextSteps.md](plans/suggestedNextSteps.md)** — sequencing recommendations and the §1 design-decision sign-offs
+9. **[suggestedNextSteps.md](suggestedNextSteps.md)** — sequencing recommendations and the §1 design-decision sign-offs (lives at root for visibility; this is the active week-by-week plan)
+10. **[accountSetup.md](accountSetup.md)** — per-account setup checklist with detailed steps, info to capture, env-var mapping, and verification
 
 ### Architecture (the "how it's built")
 
-10. **[docs/architecture.md](docs/architecture.md)** — master architecture: component diagrams, data flow, layer responsibilities, extensibility hooks
-11. **[plans/decisions/](plans/decisions/)** — Architecture Decision Records (ADRs). Twelve foundational ADRs (`0001`–`0012`) cover hosting, harness, tooling, testing, deployment, observability, and configuration. Template at `0000-template.md`.
-12. **[RESEARCH/architecture/](RESEARCH/architecture/)** — research notes that informed the ADRs (frameworks, tooling, hosting comparison, testing strategies, Anthropic SDK features, frontend stack)
-13. **[docs/](docs/)** — active reference documentation for the running system (architecture, runbooks, troubleshooting). Currently has `architecture.md`; runbook/setup/troubleshooting docs added as code is built in Phase 3+.
+11. **[docs/architecture.md](docs/architecture.md)** — master architecture: component diagrams, data flow, layer responsibilities, extensibility hooks
+12. **[plans/decisions/](plans/decisions/)** — Architecture Decision Records (ADRs). Twelve foundational ADRs (`0001`–`0012`) cover hosting, harness, tooling, testing, deployment, observability, and configuration. Template at `0000-template.md`.
+13. **[doctrine/](doctrine/)** — Phase 1+ codified trading constitution (risk policy, sleeves, universe, watchlist template, news tiers, style guide); **Phase 1 approved 2026-05-09**
+14. **[tests/specs/](tests/specs/)** — Markdown specifications Phase 3 Python tests implement (`validate_order`, halts, sizing, idempotency, adversarial hooks); **Phase 1 approved 2026-05-09**
+15. **[RESEARCH/architecture/](RESEARCH/architecture/)** — research notes that informed the ADRs (frameworks, tooling, hosting comparison, testing strategies, Anthropic SDK features, frontend stack)
+16. **[docs/](docs/)** — active reference documentation for the running system (architecture, runbooks, troubleshooting). Currently has `architecture.md`; runbook/setup/troubleshooting docs added as code is built in Phase 3+.
 
 ### Research record
 
-13. **[RESEARCH/](RESEARCH/)** — papers read, hypotheses, dossiers, retrospectives, competitive landscape, annual reports
+17. **[RESEARCH/](RESEARCH/)** — papers read, hypotheses, dossiers, retrospectives, competitive landscape, annual reports
 
 ### Reading order for new contributors
 
-`initialPlan.md` → `architecture.md` → relevant ADRs → relevant `RESEARCH/architecture/` notes → code. If those give you a coherent mental model in <2 hours, the docs are healthy.
+`initialPlan.md` → `docs/architecture.md` → `doctrine/` (especially `risk_policy.md`) → relevant ADRs → relevant `RESEARCH/architecture/` notes → code. If those give you a coherent mental model in <2 hours, the docs are healthy.
 
 ## Core Principles (the Constitution)
 
@@ -73,7 +76,7 @@ See `plans/initialPlan.md` §5 for the full list and ordering.
 
 ## Building
 
-Don't yet. Phase 0 is locked, but Phase 1 (Risk Mitigation Research & Codification) and Phase 2 (Architecture Research & Codification) precede any code. Code begins in Phase 3 (Foundations Build) — see `plans/devPhaseChecklist.md`.
+**Phase 1 is complete** (doctrine + Markdown specs signed off **2026-05-09**). **Phase 3 — Foundations Build** is next: scaffold `src/darkhorse/` (ADR-0007), implement risk modules from `tests/specs/` — **still no agent / no live LLM in CI** until those milestones say otherwise. See [`plans/devPhaseChecklist.md`](plans/devPhaseChecklist.md) Phase 3.
 
 ## License
 

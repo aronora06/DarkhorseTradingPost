@@ -34,7 +34,7 @@ What we do instead:
 - [x] (2026-05-08) `plans/frontendAndHosting.md` written and reviewed by Aaron
 - [x] (2026-05-08) `plans/dataSchema.md` written and reviewed by Aaron
 - [x] (2026-05-08) `plans/glossary.md` written and reviewed by Aaron
-- [x] (2026-05-08) `plans/suggestedNextSteps.md` written and reviewed by Aaron
+- [x] (2026-05-08) `suggestedNextSteps.md` written and reviewed by Aaron (lives at root level)
 - [x] (2026-05-08) `README.md` at project root, indexing all the above
 - [x] (2026-05-08) `plans/decisions/0000-template.md` ADR template committed
 - [x] (2026-05-08) `RESEARCH/` directory structure created (papers/, hypotheses/, monthly/, quarterly/, annual/, competitive_landscape/, practitioner_dossiers/)
@@ -49,35 +49,48 @@ What we do instead:
 
 **Goal:** Translate `riskMitigation.md` from prose into testable specifications and concrete artifacts. **No costs accruing.**
 
+**Status: COMPLETE — Aaron Parker signed off doctrine + Markdown test specs on 2026-05-09.**
+
 ### 1.1 Research
 
-- [ ] Read at least 2 source papers per major risk: FINSABER (look-ahead), TradeTrap (perturbation cascades), Apollo Research deception, adversarial-news (Unicode homoglyphs), FinMem (memory architecture)
-- [ ] Notes filed under `RESEARCH/papers/` with one-page summary per paper
-- [ ] Practitioner consensus dossier on drawdown halts (Kaufman, Tharp, Clenow, Robot Wealth) — `RESEARCH/practitioner_dossiers/drawdown_halts.md`
-- [ ] Practitioner consensus dossier on universe selection at small account sizes — `RESEARCH/practitioner_dossiers/universe_small_account.md`
-- [ ] Compile a list of every adversarial input vector we'll test against — `RESEARCH/adversarial_vectors.md`
+- [x] (2026-05-09) Read at least 2 source papers per major risk: FINSABER (look-ahead), TradeTrap (perturbation cascades), Apollo Research deception, adversarial-news (Unicode homoglyphs), FinMem (memory architecture) — see `RESEARCH/papers/` one-pagers dated batch **2026-05-09**
+- [x] (2026-05-09) Notes filed under `RESEARCH/papers/` with one-page summary per paper (major-risk seed set + TradingAgents framework summary)
+- [x] (2026-05-09) Practitioner consensus dossier on drawdown halts (Kaufman, Tharp, Clenow, Robot Wealth) — `RESEARCH/practitioner_dossiers/drawdown_halts.md`
+- [x] (2026-05-09) Practitioner consensus dossier on universe selection at small account sizes — `RESEARCH/practitioner_dossiers/universe_small_account.md`
+- [x] (2026-05-09) Supplemental dossier — execution sizing & PDT framing — `RESEARCH/practitioner_dossiers/sizing_and_pdt.md`
+- [x] (2026-05-09) Compile a list of every adversarial input vector we'll test against — `RESEARCH/adversarial_vectors.md`
 
 ### 1.2 Codified doctrine
 
-- [ ] `doctrine/risk_policy.md` — daily loss kill, drawdown halt, uncle point thresholds (numbers from initialPlan §8) with the *reason* for each number
-- [ ] `doctrine/core_sleeve.md` — Core mandate, sizing rules, no-fly list
-- [ ] `doctrine/satellite_sleeve.md` — Satellite mandate, sizing rules, allowed asset classes
-- [ ] `doctrine/universe.md` — S&P 500 + filters for Core, S&P 500 + extension list for Satellite
-- [ ] `doctrine/satellite_watchlist.md` — initial 25-name extension list (Aaron drafts; agent will challenge once it exists)
-- [ ] `doctrine/news_sources.md` — whitelisted sources + how to handle uncited claims
-- [ ] `doctrine/style_guide.md` — JSON shape for decisions, journal entry format, doctrine version pinning rules
-- [ ] `doctrine/anti_patterns.md` — initial anti-pattern catalog seeded from research papers
+- [x] (2026-05-09) `doctrine/risk_policy.md` — daily loss kill, drawdown halt, uncle point thresholds (numbers from initialPlan §8) with the *reason* for each number
+- [x] (2026-05-09) `doctrine/core_sleeve.md` — Core mandate, sizing rules, no-fly list
+- [x] (2026-05-09) `doctrine/satellite_sleeve.md` — Satellite mandate, sizing rules, allowed asset classes
+- [x] (2026-05-09) `doctrine/universe.md` — S&P 500 + filters for Core, S&P 500 + extension list for Satellite
+- [x] (2026-05-09) `doctrine/satellite_watchlist.md` — initial 25-name extension list (Aaron drafts; agent will challenge once it exists)
+- [x] (2026-05-09) `doctrine/news_sources.md` — whitelisted sources + how to handle uncited claims
+- [x] (2026-05-09) `doctrine/style_guide.md` — JSON shape for decisions, journal entry format, doctrine version pinning rules
+- [x] (2026-05-09) `doctrine/anti_patterns.md` — initial anti-pattern catalog seeded from research papers
 
 ### 1.3 Test specifications
 
-- [ ] `tests/specs/validate_order.md` — every rule with passing/failing examples
-- [ ] `tests/specs/kill_switch.md`
-- [ ] `tests/specs/drawdown.md`
-- [ ] `tests/specs/sizing.md`
-- [ ] `tests/specs/idempotency.md`
-- [ ] `tests/specs/adversarial.md`
+- [x] (2026-05-09) `tests/specs/validate_order.md` — every rule with passing/failing examples
+- [x] (2026-05-09) `tests/specs/kill_switch.md`
+- [x] (2026-05-09) `tests/specs/drawdown.md`
+- [x] (2026-05-09) `tests/specs/sizing.md`
+- [x] (2026-05-09) `tests/specs/idempotency.md`
+- [x] (2026-05-09) `tests/specs/adversarial.md`
 
-**Exit criteria:** All doctrine files exist, all test specs exist, Aaron has reviewed both. No code yet.
+### 1.4 Human gate — Aaron review (exit requirement)
+
+- [x] (2026-05-09) Aaron reviewed and approved the **`doctrine/`** bundle (see `doctrine/README.md` sign-off line)
+- [x] (2026-05-09) Aaron reviewed and approved all files under **`tests/specs/`**
+
+**Exit criteria:** All doctrine files exist, all test specs exist, Aaron has reviewed both — **SATISFIED (2026-05-09)**. No code in Phase 1 — correct.
+
+**Operational follow-ups (not Phase 1 blockers):**
+
+- Populate `doctrine/satellite_watchlist.md` with real symbols + theses **before Satellite sleeve goes live** (Phase 9 path); template-only is acceptable through Phase 3–8.
+- Steering **open questions** in `plans/initialPlan.md` §9 (options policy, tax-lot detail v2) remain for future doctrine PRs — they do not reopen Phase 1.
 
 ---
 
@@ -93,12 +106,12 @@ What we do instead:
 - [x] (2026-05-09) Testing strategies for LLM-driven systems (assertllm, agentpytest, cassette pattern) — `RESEARCH/architecture/testing_ai_agents.md`
 - [x] (2026-05-09) Anthropic SDK features (1h prompt cache, structured outputs, strict tool use, tool loop) — `RESEARCH/architecture/anthropic_sdk_features.md`
 - [x] (2026-05-09) Frontend dashboard stack (FastAPI + HTMX + Alpine + Tailwind + DaisyUI) — `RESEARCH/architecture/frontend_dashboard_stack.md`
-- [ ] Deeper read: TradingAgents repo + paper, debate-flow design choices — `RESEARCH/architecture/multi_agent_debate.md`
+- [x] (2026-05-09) Deeper read: TradingAgents repo + paper, debate-flow design choices — `RESEARCH/architecture/multi_agent_debate.md` (see also `RESEARCH/papers/2024-xiao-tradingagents.md`)
 - [ ] Deeper read: Anthropic structured outputs (with a tiny prototype) — `RESEARCH/architecture/structured_outputs.md`
 - [ ] Deeper read: Anthropic prompt caching, calculate expected cache hit rates — `RESEARCH/architecture/prompt_caching.md`
 - [ ] Read Alpaca official MCP server docs (validates ADR-0001 deferral) — feeds re-check
 - [ ] Read Claude Code routines docs (for backup-scheduler use)
-- [ ] Read at least 3 production agent post-mortems, document common failure modes — `RESEARCH/architecture/agent_failure_modes.md`
+- [x] (2026-05-09) Read at least 3 production agent post-mortems, document common failure modes — `RESEARCH/architecture/agent_failure_modes.md` §Documented operator post-mortems (TrackAI 2024-10-15; ForgeCode RCA 2025-07-12; Claude Code gh#3043 2025-07-06)
 
 ### 2.2 Architecture artifacts
 

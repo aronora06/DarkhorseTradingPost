@@ -39,11 +39,15 @@ The v1 build deliberately stays close to the YouTube reference (Claude Code rout
 ```
 DarkhorseTradingOutpost/
 ├── doctrine/                    # Read by every routine; the rules the agent must follow
+│   ├── README.md                # Index into doctrine files
 │   ├── core_sleeve.md           # Conservative sleeve mandate, sizing, no-fly list
-│   ├── satellite_sleeve.md      # Higher-risk sleeve mandate, sizing, allowed asset classes
+│   ├── satellite_sleeve.md      # Higher-risk sleeve mandate + post-earnings playbook
 │   ├── universe.md              # Tradable universe (S&P 500 + curated satellite extension)
-│   ├── risk_policy.md           # Hard limits, kill-switch behavior, escalation
-│   └── style_guide.md           # How the agent writes journal entries, decision JSON shape
+│   ├── satellite_watchlist.md   # Satellite extension names + theses (Aaron-owned)
+│   ├── risk_policy.md           # Hard limits, halts, PDT buffer, tripwires
+│   ├── news_sources.md          # Trust tiers for corroboration
+│   ├── anti_patterns.md         # Seed catalog of traps & drift patterns
+│   └── style_guide.md           # Decision JSON + journal shape + doctrine versioning
 ├── memory/                      # Durable state, one folder per sleeve
 │   ├── core/
 │   │   ├── positions.json       # Latest snapshot, refreshed each routine
@@ -86,6 +90,13 @@ DarkhorseTradingOutpost/
 │   ├── settings.toml            # Sleeve sizes, limits, schedule, providers
 │   └── .env.example
 ├── tests/
+│   ├── specs/                   # Phase 1 markdown specs → Phase 3 pytest implements
+│   │   ├── validate_order.md
+│   │   ├── kill_switch.md
+│   │   ├── drawdown.md
+│   │   ├── sizing.md
+│   │   ├── idempotency.md
+│   │   └── adversarial.md
 │   ├── test_validate_order.py
 │   ├── test_kill_switch.py
 │   ├── test_drawdown.py
@@ -121,7 +132,7 @@ researcher → [bull_analyst, bear_analyst] (parallel)
            → journal.append()
 ```
 
-Decision JSON is constrained via **Anthropic structured outputs** (beta header `structured-outputs-2025-11-13`) so the model literally cannot emit an invalid `side`, `qty`, or `time_in_force`. Confidence floor: act only if `confidence >= 0.7` AND every `risk_check` passes. Default action under any ambiguity: `NO_TRADE`.
+Decision JSON is constrained via **Anthropic structured outputs** (GA as of 2026 — see `RESEARCH/architecture/anthropic_sdk_features.md`; no beta header required) so the model literally cannot emit an invalid `side`, `qty`, or `time_in_force`. Confidence floor: act only if `confidence >= 0.7` AND every `risk_check` passes. Default action under any ambiguity: `NO_TRADE`.
 
 Tiered model assignment per role: see `riskMitigation.md` §2. **Risk-manager runs Opus 4.7; researcher / bull / bear run Sonnet 4.6; journaling and reflection run Haiku 4.5.** Prompt caching is enabled across all roles.
 

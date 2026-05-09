@@ -19,6 +19,10 @@ See `plans/researchCharter.md` for the framing — research questions, hypothese
 | [`annual/`](./annual/) | Year-N reports designed to be publication-ready | Annually |
 | [`architecture/`](./architecture/) | Architecture-research notes (multi-agent debate, prompt caching, structured outputs) | Phase 2, then as-needed |
 
+**Root-level research artifacts**
+
+- [`adversarial_vectors.md`](./adversarial_vectors.md) — catalog of adversarial inputs → validate_order / harness mitigations (Phase 1).
+
 ## Conventions
 
 - **Filenames:** kebab-case for descriptive files (`drawdown-halts.md`); structured IDs for registry-style files (`H_005.md`, `2026-08.md`).

@@ -6,6 +6,7 @@ Active reference documentation for the running Darkhorse system. This directory 
 |---|---|---|
 | `plans/` | **Steering and decisions** — what we're building, why, and what trade-offs we accepted. ADRs in `plans/decisions/`. | Written once, edited deliberately. |
 | `docs/` | **Active reference** — how the running system works, how to operate it, how to extend it. | Living documents; updated as code changes. |
+| `doctrine/` (repo root) | **Codified rules** the harness loads — risk policy, sleeves, universe, watchlist template, news tiers. Complements `plans/`; numeric mirrors land in `config/` at Phase 3. | Versioned with git; material edits via PR discipline. |
 | `RESEARCH/` | **Research record** — papers, hypotheses, retrospectives, competitive landscape, dossiers. | Append-mostly; immutable history. |
 
 If you're trying to understand "what we decided and why," start in `plans/`. If you're trying to understand "how do I make this code do X," start here.
@@ -15,6 +16,8 @@ If you're trying to understand "what we decided and why," start in `plans/`. If 
 | File | Purpose |
 |---|---|
 | [`architecture.md`](architecture.md) | The master architectural reference for the codebase: layers, data flow, deployment topology, extensibility hooks, ADR index |
+
+**Related (outside `docs/`):** [`doctrine/`](../doctrine/) — trading constitution Markdown (**Phase 1 approved 2026-05-09**); [`tests/specs/`](../tests/specs/) — Markdown specs implemented by Phase 3 tests (**same sign-off**).
 
 ## Planned additions (as code is built)
 
